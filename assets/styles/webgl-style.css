@@ -1,0 +1,431 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: #001122;
+    overflow: hidden;
+}
+
+#webgl-canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #001122 0%, #002244 100%);
+}
+
+/* Loading Screen */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, #001a33, #000511);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 1s ease;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+    color: #87ceeb;
+}
+
+.loading-content h2 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px rgba(135, 206, 235, 0.5);
+    animation: ocean-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes ocean-glow {
+    from { text-shadow: 0 0 20px rgba(135, 206, 235, 0.5); }
+    to { text-shadow: 0 0 30px rgba(135, 206, 235, 0.8); }
+}
+
+.loading-bar {
+    width: 300px;
+    height: 6px;
+    background: rgba(135, 206, 235, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 20px auto;
+}
+
+.loading-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4fc3f7, #29b6f6, #03a9f4);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    animation: wave-progress 2s ease-in-out infinite;
+}
+
+@keyframes wave-progress {
+    0%, 100% { transform: translateX(-100px); }
+    50% { transform: translateX(400px); }
+}
+
+.loading-content p {
+    margin-top: 20px;
+    font-size: 1.1em;
+    opacity: 0.8;
+}
+
+/* UI Overlay */
+#ui-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 20, 40, 0.8);
+    color: #87ceeb;
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(135, 206, 235, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    min-width: 280px;
+}
+
+#controls h3 {
+    margin-bottom: 15px;
+    color: #4fc3f7;
+    text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+}
+
+#controls p {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+#controls strong {
+    color: #29b6f6;
+}
+
+.info {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(135, 206, 235, 0.2);
+    font-weight: bold;
+    color: #4fc3f7;
+    animation: info-pulse 3s ease-in-out infinite;
+}
+
+@keyframes info-pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+#performance {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 20, 40, 0.6);
+    color: #87ceeb;
+    padding: 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(135, 206, 235, 0.2);
+    font-family: monospace;
+    font-size: 12px;
+    pointer-events: auto;
+}
+
+#performance div {
+    margin-bottom: 5px;
+}
+
+#performance span {
+    color: #4fc3f7;
+    font-weight: bold;
+}
+
+/* Educational Information Panel */
+#species-info {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 480px;
+    max-width: 95vw;
+    background: rgba(0, 30, 60, 0.95);
+    color: #e3f2fd;
+    border-radius: 20px;
+    padding: 25px;
+    border: 2px solid rgba(79, 195, 247, 0.4);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px);
+    z-index: 200;
+    transition: all 0.4s ease;
+    pointer-events: auto;
+}
+
+#species-info.hidden {
+    opacity: 0;
+    transform: translateX(-50%) translateY(50px);
+    pointer-events: none;
+}
+
+.species-content {
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: #f44336;
+    color: white;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4);
+}
+
+.close-btn:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
+}
+
+/* Species header with photo and names */
+.species-header {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+.species-photo {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.species-photo img {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 2px solid rgba(79, 195, 247, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.species-photo img:hover {
+    transform: scale(1.05);
+}
+
+.photo-credit {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #87ceeb;
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.species-names {
+    flex: 1;
+    padding-top: 5px;
+}
+
+#species-name {
+    font-size: 1.5em;
+    color: #4fc3f7;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+#species-english {
+    font-size: 1em;
+    color: #81c784;
+    margin-bottom: 8px;
+    font-style: italic;
+    opacity: 0.9;
+    line-height: 1.3;
+}
+
+#species-facts {
+    margin-bottom: 15px;
+}
+
+#species-facts ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#species-facts li {
+    padding: 8px 0;
+    padding-left: 25px;
+    position: relative;
+    font-size: 0.95em;
+    line-height: 1.4;
+    border-left: 2px solid rgba(79, 195, 247, 0.3);
+    margin-left: 10px;
+}
+
+#species-facts li::before {
+    content: "🐠";
+    position: absolute;
+    left: -15px;
+    top: 8px;
+    font-size: 0.9em;
+}
+
+.info-hint {
+    text-align: center;
+    font-size: 0.8em;
+    color: #b0bec5;
+    margin: 15px 0 0 0;
+    padding-top: 15px;
+    border-top: 1px solid rgba(79, 195, 247, 0.2);
+    font-style: italic;
+}
+
+/* Animation for appearing facts */
+#species-facts li {
+    opacity: 0;
+    animation: fact-appear 0.5s ease forwards;
+}
+
+#species-facts li:nth-child(1) { animation-delay: 0.1s; }
+#species-facts li:nth-child(2) { animation-delay: 0.2s; }
+#species-facts li:nth-child(3) { animation-delay: 0.3s; }
+#species-facts li:nth-child(4) { animation-delay: 0.4s; }
+#species-facts li:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fact-appear {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Floating name labels for marine species */
+.species-label {
+    position: absolute;
+    background: rgba(0, 30, 60, 0.85);
+    color: #87ceeb;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    border: 1px solid rgba(79, 195, 247, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    pointer-events: none;
+    z-index: 150;
+    white-space: nowrap;
+    animation: label-float 3s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+@keyframes label-float {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+        opacity: 0.9;
+    }
+    50% { 
+        transform: translateY(-3px) scale(1.05);
+        opacity: 1;
+    }
+}
+
+.species-label.fade-in {
+    animation: label-fade-in 0.5s ease forwards;
+}
+
+.species-label.fade-out {
+    animation: label-fade-out 0.3s ease forwards;
+}
+
+@keyframes label-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.8);
+    }
+    to {
+        opacity: 0.9;
+        transform: translateY(0px) scale(1);
+    }
+}
+
+@keyframes label-fade-out {
+    from {
+        opacity: 0.9;
+        transform: translateY(0px) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.8);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #controls {
+        left: 10px;
+        top: 10px;
+        padding: 15px;
+        font-size: 12px;
+        min-width: 240px;
+    }
+    
+    #performance {
+        right: 10px;
+        top: 10px;
+        font-size: 10px;
+    }
+    
+    .loading-content h2 {
+        font-size: 2em;
+    }
+    
+    .loading-bar {
+        width: 250px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

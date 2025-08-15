@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cinematic Control Panel</title>
+    <style>
+        body { background: #001122; margin: 0; padding: 0; }
+    </style>
+</head>
+<body>
+    <h1 style="color: white; text-align: center; margin-top: 50px;">测试电影级控制面板</h1>
+    
+    <!-- 加载控制面板脚本 -->
+    <script src="src/ui/CinematicControlPanel.js"></script>
+    
+    <script>
+        // 创建模拟的oceanForest对象
+        window.oceanForest = {
+            cinematicCamera: {
+                setMode: (mode, settings) => console.log('设置摄像机模式:', mode, settings),
+                dollyZoom: (fov, duration) => console.log('希区柯克变焦:', fov, duration)
+            },
+            advancedParticles: {
+                adjustParticleDensity: (type, value) => console.log('调整粒子密度:', type, value)
+            },
+            renderEngine: {
+                getRenderStats: () => ({ fps: 60, triangles: 15000, calls: 25 })
+            }
+        };
+        
+        // 初始化控制面板
+        setTimeout(() => {
+            console.log('初始化控制面板...');
+            if (window.CinematicControlPanel) {
+                window.cinematicPanel = new CinematicControlPanel();
+                console.log('✅ 控制面板已创建');
+            } else {
+                console.error('❌ CinematicControlPanel类未找到');
+            }
+        }, 500);
+    </script>
+</body>
+</html>

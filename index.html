@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Forest - WebGL Octopus Adventure</title>
+    <link rel="stylesheet" href="assets/styles/webgl-style.css">
+</head>
+<body>
+    <!-- WebGL Canvas -->
+    <canvas id="webgl-canvas"></canvas>
+    
+    <!-- Loading screen -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <h2>🌊 Loading Ocean Forest...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p>Preparing your underwater adventure</p>
+        </div>
+    </div>
+    
+    <!-- UI Overlay -->
+    <div id="ui-overlay">
+        <div id="controls">
+            <h3>🐙 章鱼控制 / Octopus Controls</h3>
+            <p><strong>WASD/方向键 / Arrow Keys:</strong> 移动 / Move around</p>
+            <p><strong>鼠标 / Mouse:</strong> 观察 / Look around</p>
+            <p><strong>M键 / M Key:</strong> 切换鼠标控制 / Toggle mouse control</p>
+            <p><strong>空格 / Space:</strong> 上游 / Swim up</p>
+            <p><strong>Shift:</strong> 下游 / Swim down</p>
+            <div class="info">欢迎来到南非海洋森林 / Welcome to South African Ocean Forest</div>
+        </div>
+        
+        <div id="performance">
+            <div>FPS: <span id="fps">60</span></div>
+            <div>🌿 Kelp: <span id="kelp-count">0</span></div>
+            <div>🐟 Fish: <span id="fish-count">0</span></div>
+            <div>🦭 Seals: <span id="seal-count">0</span></div>
+            <div>🐧 Penguins: <span id="penguin-count">0</span></div>
+            <div>🦈 Sharks: <span id="shark-count">0</span></div>
+        </div>
+        
+        <!-- Educational Information Panel -->
+        <div id="species-info" class="hidden">
+            <div class="species-content">
+                <button id="close-info" class="close-btn">×</button>
+                <div class="species-header">
+                    <div class="species-photo">
+                        <img id="species-image" src="" alt="Species Photo" />
+                        <div class="photo-credit">📸 Photo</div>
+                    </div>
+                    <div class="species-names">
+                        <h3 id="species-name"></h3>
+                        <h4 id="species-english"></h4>
+                    </div>
+                </div>
+                <div id="species-facts"></div>
+                <p class="info-hint">🖱️ 点击海洋生物了解更多知识 / Click marine animals to learn more</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Module Manager (must load first) -->
+    <script src="src/core/ModuleManager.js"></script>
+    
+    <!-- Core Modules -->
+    <script src="src/core/OceanForest.js"></script>
+    
+    <!-- Model Modules -->
+    <script src="src/models/OceanEnvironment.js"></script>
+    <script src="src/models/OctopusModel.js"></script>
+    <script src="src/models/MarineAnimals.js"></script>
+    <script src="src/models/SharkModel.js"></script>
+    <script src="src/models/ReefFishModel.js"></script>
+    <script src="src/models/SharksAndFish.js"></script>
+    
+    <!-- System Modules -->
+    <script src="src/systems/AudioSystem.js"></script>
+    <script src="src/systems/EducationSystem.js"></script>
+    <script src="src/systems/RenderEngine.js"></script>
+
+    <!-- Cinematic Systems -->
+    <script src="src/systems/CinematicAnimationSystem.js"></script>
+    <script src="src/systems/AdvancedParticleSystem.js"></script>
+    <script src="src/systems/MarineLifeBehavior.js"></script>
+    <script src="src/systems/CinematicCameraSystem.js"></script>
+    <script src="src/ui/CinematicControlPanel.js"></script>
+    
+    <!-- Main Application Initialization -->
+    <script>
+        // Initialize Ocean Forest Application
+        let oceanForest = null;
+        
+        window.addEventListener('load', async () => {
+            try {
+                // Wait for all modules to load
+                if (window.moduleManager) {
+                    console.log('🔄 等待模块加载...');
+                    const moduleReady = await window.moduleManager.waitForModules();
+                    
+                    if (moduleReady) {
+                        // Initialize main application
+                        const OceanForest = window.moduleManager.getModule('OceanForest');
+                        if (OceanForest) {
+                            oceanForest = new OceanForest();
+                            window.oceanForest = oceanForest; // Make globally available
+                            
+                            console.log('🌊 Ocean Forest Application Started');
+                            console.log('🎬 Initializing cinematic systems...');
+                            
+                            // Initialize control panel after ocean forest is ready
+                            setTimeout(() => {
+                                console.log('🎮 开始初始化控制面板...');
+                                console.log('检查 CinematicControlPanel 类:', !!window.CinematicControlPanel);
+                                console.log('检查现有面板实例:', !!window.cinematicPanel);
+                                
+                                // 强制初始化控制面板
+                                if (window.CinematicControlPanel) {
+                                    try {
+                                        window.cinematicPanel = new CinematicControlPanel();
+                                        console.log('✅ 电影级控制面板已强制初始化');
+                                        // 立即检查状态
+                                        setTimeout(() => {
+                                            if (window.cinematicPanel) {
+                                                window.cinematicPanel.checkStatus();
+                                                console.log('🎬 控制面板状态检查完成');
+                                            }
+                                        }, 500);
+                                    } catch (error) {
+                                        console.error('❌ 控制面板初始化失败:', error);
+                                    }
+                                } else {
+                                    console.error('❌ CinematicControlPanel类未找到，请检查脚本加载');
+                                    // 列出当前window下所有可用的变量
+                                    console.log('当前window对象中的相关变量:');
+                                    Object.keys(window).filter(key => key.toLowerCase().includes('cinema')).forEach(key => {
+                                        console.log(' -', key, ':', typeof window[key]);
+                                    });
+                                }
+                            }, 2000);
+                            
+                        } else {
+                            console.error('❌ OceanForest module not found');
+                        }
+                    } else {
+                        console.error('❌ Required modules failed to load');
+                    }
+                } else {
+                    console.error('❌ Module manager not found');
+                }
+            } catch (error) {
+                console.error('❌ Application initialization failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

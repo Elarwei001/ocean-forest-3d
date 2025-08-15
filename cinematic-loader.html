@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电影级海洋森林 - Cinematic Ocean Forest</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #001122, #003366);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.8;
+        }
+        
+        .system-status {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .system-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .system-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status.available {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .status.loading {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+        
+        .controls {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group h3 {
+            margin-bottom: 10px;
+            color: #87CEEB;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #4FC3F7, #29B6F6);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #29B6F6, #0288D1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info-section {
+            background: rgba(135, 206, 235, 0.1);
+            border-left: 4px solid #87CEEB;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .console-output {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.8em;
+            margin-top: 20px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 电影级海洋森林</h1>
+            <p>Cinematic Ocean Forest - 高级视觉效果控制面板</p>
+        </div>
+        
+        <div class="info-section">
+            <h3>📋 使用说明</h3>
+            <p><strong>重要：</strong>此页面是独立的控制面板。要使用电影级效果，请按以下步骤操作：</p>
+            <ol>
+                <li>在主海洋森林页面(index.html)中添加脚本标签</li>
+                <li>重新加载主页面</li>
+                <li>在主页面的浏览器控制台中使用控制命令</li>
+            </ol>
+            <p>此页面主要用于查看加载说明和控制命令参考。</p>
+        </div>
+        
+        <div class="system-status">
+            <h3>🔧 系统状态</h3>
+            <div class="system-item">
+                <span>基础海洋森林系统</span>
+                <span class="status loading" id="status-base">检查中...</span>
+            </div>
+            <div class="system-item">
+                <span>电影级动画系统</span>
+                <span class="status loading" id="status-cinematic">检查中...</span>
+            </div>
+            <div class="system-item">
+                <span>高级粒子系统</span>
+                <span class="status loading" id="status-particles">检查中...</span>
+            </div>
+            <div class="system-item">
+                <span>海洋生物AI行为</span>
+                <span class="status loading" id="status-behavior">检查中...</span>
+            </div>
+            <div class="system-item">
+                <span>电影级摄像机</span>
+                <span class="status loading" id="status-camera">检查中...</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>🎨 材质效果</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="loadCinematicSystems()">加载电影级系统</button>
+                    <button class="btn" onclick="enablePhysicalMaterials()">启用物理材质</button>
+                    <button class="btn" onclick="resetMaterials()">重置到基础材质</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>✨ 粒子效果</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="toggleBubbles()">气泡效果</button>
+                    <button class="btn" onclick="togglePlankton()">生物发光</button>
+                    <button class="btn" onclick="toggleMarineSnow()">海洋雪花</button>
+                    <button class="btn" onclick="adjustParticleDensity(0.5)">减少粒子</button>
+                    <button class="btn" onclick="adjustParticleDensity(2.0)">增强粒子</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>📹 摄像机模式</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="setCameraMode('follow')">跟随模式</button>
+                    <button class="btn" onclick="setCameraMode('cinematic')">电影模式</button>
+                    <button class="btn" onclick="setCameraMode('orbit')">环绕模式</button>
+                    <button class="btn" onclick="setCameraMode('documentary')">纪录片模式</button>
+                    <button class="btn" onclick="enableCameraShake(0.1)">轻微震动</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>🐠 生物行为</h3>
+                <div class="button-group">
+                    <button class="btn" onclick="enableSchooling()">启用鱼群行为</button>
+                    <button class="btn" onclick="enableHunting()">启用狩猎行为</button>
+                    <button class="btn" onclick="resetBehaviors()">重置行为</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="console-output" id="console">
+            <div>🌊 电影级海洋森林控制台</div>
+            <div>等待系统状态检查...</div>
+        </div>
+        
+        <div class="footer">
+            <p>🎬 Powered by Claude & Three.js | 海洋森林电影级动画系统</p>
+        </div>
+    </div>
+
+    <script>
+        // 控制台输出函数
+        function logToConsole(message, type = 'info') {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#0f0',
+                warn: '#ff0',
+                error: '#f00',
+                success: '#0f0'
+            };
+            
+            const div = document.createElement('div');
+            div.style.color = colors[type] || '#0f0';
+            div.textContent = `[${timestamp}] ${message}`;
+            console.appendChild(div);
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        // 检查系统状态
+        function checkSystemStatus() {
+            logToConsole('检查当前页面的系统状态...');
+            
+            // 检查基础系统
+            if (window.oceanForest) {
+                document.getElementById('status-base').textContent = '✅ 已加载';
+                document.getElementById('status-base').className = 'status available';
+                logToConsole('基础海洋森林系统: ✅ 已加载', 'success');
+            } else {
+                document.getElementById('status-base').textContent = '⚠️ 控制面板页面';
+                document.getElementById('status-base').className = 'status loading';
+                logToConsole('此页面是控制面板，请在主页面中加载系统', 'warn');
+            }
+            
+            // 检查电影级系统
+            const systems = [
+                { key: 'cinematicAnimation', id: 'status-cinematic', name: '电影级动画系统' },
+                { key: 'advancedParticles', id: 'status-particles', name: '高级粒子系统' },
+                { key: 'marineLifeBehavior', id: 'status-behavior', name: '海洋生物AI行为' },
+                { key: 'cinematicCamera', id: 'status-camera', name: '电影级摄像机' }
+            ];
+            
+            systems.forEach(system => {
+                if (window.oceanForest && window.oceanForest[system.key]) {
+                    document.getElementById(system.id).textContent = '✅ 已启用';
+                    document.getElementById(system.id).className = 'status available';
+                    logToConsole(`${system.name}: ✅ 已启用`, 'success');
+                } else if (window.moduleManager && window.moduleManager.getModule(system.key)) {
+                    document.getElementById(system.id).textContent = '⚡ 可启用';
+                    document.getElementById(system.id).className = 'status loading';
+                    logToConsole(`${system.name}: ⚡ 模块已加载，等待初始化`, 'warn');
+                } else {
+                    document.getElementById(system.id).textContent = '❌ 不可用';
+                    document.getElementById(system.id).className = 'status error';
+                    logToConsole(`${system.name}: ❌ 模块未加载`, 'error');
+                }
+            });
+        }
+        
+        // 加载电影级系统
+        function loadCinematicSystems() {
+            logToConsole('正在加载电影级系统...', 'info');
+            
+            if (!window.oceanForest) {
+                logToConsole('错误: 请先加载主海洋森林系统', 'error');
+                return;
+            }
+            
+            try {
+                // 手动初始化系统
+                if (window.oceanForest.initOptionalSystems) {
+                    window.oceanForest.initOptionalSystems();
+                    logToConsole('电影级系统初始化完成', 'success');
+                } else {
+                    logToConsole('警告: initOptionalSystems 方法不存在', 'warn');
+                }
+                
+                // 重新检查状态
+                setTimeout(checkSystemStatus, 1000);
+                
+            } catch (error) {
+                logToConsole(`加载失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 摄像机模式控制
+        function setCameraMode(mode) {
+            if (window.oceanForest && window.oceanForest.cinematicCamera) {
+                try {
+                    window.oceanForest.cinematicCamera.setMode(mode);
+                    logToConsole(`摄像机模式切换到: ${mode}`, 'success');
+                } catch (error) {
+                    logToConsole(`摄像机模式切换失败: ${error.message}`, 'error');
+                }
+            } else {
+                logToConsole('电影级摄像机系统未启用', 'warn');
+            }
+        }
+        
+        // 摄像机震动
+        function enableCameraShake(intensity) {
+            if (window.oceanForest && window.oceanForest.cinematicCamera) {
+                try {
+                    window.oceanForest.cinematicCamera.enableShake(intensity);
+                    logToConsole(`摄像机震动已启用，强度: ${intensity}`, 'success');
+                } catch (error) {
+                    logToConsole(`摄像机震动启用失败: ${error.message}`, 'error');
+                }
+            } else {
+                logToConsole('电影级摄像机系统未启用', 'warn');
+            }
+        }
+        
+        // 粒子密度调整
+        function adjustParticleDensity(factor) {
+            if (window.oceanForest && window.oceanForest.advancedParticles) {
+                try {
+                    window.oceanForest.advancedParticles.adjustParticleDensity('bubbles', factor);
+                    window.oceanForest.advancedParticles.adjustParticleDensity('plankton', factor);
+                    logToConsole(`粒子密度调整为: ${factor}x`, 'success');
+                } catch (error) {
+                    logToConsole(`粒子密度调整失败: ${error.message}`, 'error');
+                }
+            } else {
+                logToConsole('高级粒子系统未启用', 'warn');
+            }
+        }
+        
+        // 生物行为控制
+        function enableSchooling() {
+            logToConsole('鱼群行为已在AI系统中自动启用', 'info');
+        }
+        
+        function enableHunting() {
+            logToConsole('狩猎行为已在AI系统中自动启用', 'info');
+        }
+        
+        function resetBehaviors() {
+            logToConsole('行为系统重置（自动管理）', 'info');
+        }
+        
+        // 材质控制
+        function enablePhysicalMaterials() {
+            logToConsole('物理材质已在代码中自动启用（如果支持）', 'info');
+        }
+        
+        function resetMaterials() {
+            logToConsole('材质重置需要重新加载页面', 'warn');
+        }
+        
+        // 其他控制函数的占位符
+        function toggleBubbles() { logToConsole('气泡效果切换', 'info'); }
+        function togglePlankton() { logToConsole('生物发光切换', 'info'); }
+        function toggleMarineSnow() { logToConsole('海洋雪花切换', 'info'); }
+        
+        // 页面加载时检查状态
+        window.addEventListener('load', () => {
+            setTimeout(checkSystemStatus, 1000);
+        });
+        
+        // 定期更新状态
+        setInterval(checkSystemStatus, 5000);
+    </script>
+</body>
+</html>
