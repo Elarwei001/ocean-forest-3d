@@ -800,17 +800,15 @@ class OceanForest {
     updateFish(deltaTime) {
         this.fish.forEach((fish, fishIndex) => {
             if (!fish.userData.swimData) {
-                // 初始化游泳数据
+                // 初始化自然游泳数据
                 fish.userData.swimData = {
-                    baseSpeed: 0.01 + Math.random() * 0.005, // 大幅降低速度，仿照章鱼0.08的比例
+                    baseSpeed: 0.008 + Math.random() * 0.007, // 极慢速度，仿照章鱼慢速移动
                     currentSpeed: 0,
                     targetDirection: fish.userData.direction.clone(),
                     currentDirection: fish.userData.direction.clone(),
-                    wanderAngle: Math.random() * Math.PI * 2,
                     swimPhase: Math.random() * Math.PI * 2,
-                    personalityFactor: 0.5 + Math.random() * 0.5, // 0.5-1.0个性因子
                     lastDirectionChange: 0,
-                    directionChangeInterval: 3000 + Math.random() * 5000 // 3-8秒改变一次方向，更慢更稳定
+                    directionChangeInterval: 4000 + Math.random() * 6000 // 4-10秒改变方向
                 };
             }
             
@@ -820,78 +818,70 @@ class OceanForest {
             // 检查是否需要改变游泳方向
             if (time - swimData.lastDirectionChange > swimData.directionChangeInterval) {
                 swimData.lastDirectionChange = time;
-                swimData.directionChangeInterval = 2000 + Math.random() * 3000;
+                swimData.directionChangeInterval = 4000 + Math.random() * 6000;
                 
-                // 生成新的目标方向（相对平滑的转向）
+                // 生成新的目标方向（极其平滑的转向）
                 const currentAngle = Math.atan2(swimData.currentDirection.z, swimData.currentDirection.x);
-                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.6; // 最大54度转向
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.4; // 最大36度转向
                 const newAngle = currentAngle + turnAngle;
                 
                 swimData.targetDirection.set(
                     Math.cos(newAngle),
-                    (Math.random() - 0.5) * 0.3, // 轻微的上下游动
+                    (Math.random() - 0.5) * 0.2, // 轻微的上下游动
                     Math.sin(newAngle)
                 ).normalize();
             }
             
-            // 平滑插值到目标方向
-            swimData.currentDirection.lerp(swimData.targetDirection, deltaTime * 0.8);
+            // 极其平滑的方向插值
+            swimData.currentDirection.lerp(swimData.targetDirection, 0.01);
             swimData.currentDirection.normalize();
             
-            // 检查与章鱼的距离
-            const toOctopus = fish.position.clone().sub(this.octopusPosition);
-            const distanceToOctopus = toOctopus.length();
-            
+            // 简化的避让行为
+            const distanceToOctopus = fish.position.distanceTo(this.octopusPosition);
             let targetSpeed = swimData.baseSpeed;
             
-            if (distanceToOctopus < 8) {
-                // 避开章鱼 - 平滑转向
-                toOctopus.normalize();
-                swimData.targetDirection.lerp(toOctopus, deltaTime * 2.0);
-                targetSpeed = swimData.baseSpeed * 1.5; // 轻微加速
+            if (distanceToOctopus < 5) {
+                // 极其轻微的避让
+                const avoidVector = fish.position.clone().sub(this.octopusPosition).normalize();
+                swimData.targetDirection.lerp(avoidVector, 0.015);
+                targetSpeed = swimData.baseSpeed * 1.3; // 轻微加速
             }
             
-            // 平滑速度变化
+            // 速度平滑变化
             swimData.currentSpeed = THREE.MathUtils.lerp(
                 swimData.currentSpeed, 
                 targetSpeed, 
-                deltaTime * 2.0
+                0.03
             );
             
-            // 添加自然的游泳波动
-            swimData.swimPhase += deltaTime * 3.0;
-            const swimOscillation = Math.sin(swimData.swimPhase) * 0.2 + 1.0;
-            const finalSpeed = swimData.currentSpeed * swimOscillation * swimData.personalityFactor;
+            // 简化的游泳节奏
+            swimData.swimPhase += deltaTime * 1.5;
+            const rhythmFactor = 0.7 + Math.sin(swimData.swimPhase) * 0.3;
+            const finalSpeed = swimData.currentSpeed * rhythmFactor;
             
-            // 移动鱼类
-            fish.position.addScaledVector(swimData.currentDirection, finalSpeed * deltaTime * 10);
+            // 慢速移动
+            const moveVector = swimData.currentDirection.clone().multiplyScalar(finalSpeed);
+            fish.position.add(moveVector);
             
-            // 平滑转向面对游泳方向
+            // 平滑朝向移动方向
             const lookTarget = fish.position.clone().add(swimData.currentDirection);
-            const currentLookDir = new THREE.Vector3();
-            fish.getWorldDirection(currentLookDir);
-            const targetLookDir = lookTarget.clone().sub(fish.position).normalize();
+            fish.lookAt(lookTarget);
             
-            // 使用slerp进行平滑旋转
-            currentLookDir.lerp(targetLookDir, deltaTime * 3.0);
-            fish.lookAt(fish.position.clone().add(currentLookDir));
-            
-            // 边界检查 - 平滑转向回中心
-            const distanceFromCenter = fish.position.length();
-            if (distanceFromCenter > 70) {
-                const toCenter = fish.position.clone().negate().normalize();
-                swimData.targetDirection.lerp(toCenter, deltaTime * 1.5);
+            // 边界控制
+            if (fish.position.length() > 60) {
+                const returnVector = fish.position.clone().negate().normalize();
+                swimData.targetDirection.lerp(returnVector, 0.05);
             }
             
-            // 自然的尾巴摆动动画
+            // 简化的尾鳍动画
             const tail = fish.children[1];
             if (tail) {
-                const swimIntensity = finalSpeed / swimData.baseSpeed;
-                const tailPhase = time * 0.008 * swimIntensity + fishIndex;
-                tail.rotation.y = Math.sin(tailPhase) * 0.4 * swimIntensity;
+                const swimTime = time * 0.004; // 很慢的摆动
+                const swimIntensity = finalSpeed * 15;
+                tail.rotation.y = Math.sin(swimTime + fishIndex) * 0.3 * swimIntensity;
             }
             
-            // 更新原始方向数据以保持兼容性
+            // 更新原始数据保持兼容性
             fish.userData.direction.copy(swimData.currentDirection);
             fish.userData.speed = finalSpeed;
         });
@@ -2023,56 +2013,102 @@ class OceanForest {
         this.capeFurSeals.forEach(seal => {
             const sealData = seal.userData;
             
-            // Breathing behavior - surface occasionally
-            sealData.breathTimer -= deltaTime;
-            if (sealData.breathTimer <= 0) {
-                sealData.breathTimer = 15 + Math.random() * 10;
-                sealData.direction.y = 0.8; // Head to surface
-            } else if (seal.position.y > 5) {
-                sealData.direction.y = -0.3; // Dive back down
+            // 初始化自然游泳数据
+            if (!sealData.naturalSwim) {
+                sealData.naturalSwim = {
+                    baseSpeed: 0.010 + Math.random() * 0.005, // 慢速移动
+                    currentSpeed: 0,
+                    targetDirection: sealData.direction.clone(),
+                    currentDirection: sealData.direction.clone(),
+                    swimPhase: Math.random() * Math.PI * 2,
+                    lastDirectionChange: 0,
+                    directionChangeInterval: 5000 + Math.random() * 8000, // 5-13秒改变方向
+                    breathingTimer: Math.random() * 20000, // 呼吸计时
+                    playTimer: Math.random() * 30000, // 玩耍计时
+                    currentDepth: seal.position.y
+                };
             }
             
-            // Playful behavior
-            sealData.playfulTimer -= deltaTime;
-            if (sealData.playfulTimer <= 0) {
-                sealData.playfulTimer = 8 + Math.random() * 12;
-                // Barrel roll or spin
-                seal.rotation.z += Math.PI * 2 * deltaTime;
+            const naturalSwim = sealData.naturalSwim;
+            const time = performance.now();
+            
+            // 检查是否需要改变游泳方向
+            if (time - naturalSwim.lastDirectionChange > naturalSwim.directionChangeInterval) {
+                naturalSwim.lastDirectionChange = time;
+                naturalSwim.directionChangeInterval = 5000 + Math.random() * 8000;
+                
+                // 生成新的目标方向（平滑转向）
+                const currentAngle = Math.atan2(naturalSwim.currentDirection.z, naturalSwim.currentDirection.x);
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.5; // 最大45度转向
+                const newAngle = currentAngle + turnAngle;
+                
+                naturalSwim.targetDirection.set(
+                    Math.cos(newAngle),
+                    (Math.random() - 0.5) * 0.4, // 更多的垂直变化
+                    Math.sin(newAngle)
+                ).normalize();
             }
             
-            // Movement
-            seal.position.addScaledVector(sealData.direction, sealData.speed * deltaTime);
+            // 简单的呼吸行为
+            naturalSwim.breathingTimer -= deltaTime * 1000;
+            if (naturalSwim.breathingTimer <= 0) {
+                naturalSwim.breathingTimer = 15000 + Math.random() * 10000; // 15-25秒呼吸一次
+                if (seal.position.y < 2) {
+                    naturalSwim.targetDirection.y = 0.6; // 上浮呼吸
+                } else {
+                    naturalSwim.targetDirection.y = -0.4; // 下潜
+                }
+            }
             
-            // Random direction changes
-            if (Math.random() < sealData.agility) {
-                sealData.direction.add(new THREE.Vector3(
+            // 偶尔的玩耍行为（非常轻微）
+            naturalSwim.playTimer -= deltaTime * 1000;
+            if (naturalSwim.playTimer <= 0) {
+                naturalSwim.playTimer = 25000 + Math.random() * 15000; // 25-40秒玩耍一次
+                // 只是稍微改变方向，不做剧烈动作
+                const playDirection = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.3,
                     (Math.random() - 0.5) * 0.2,
-                    (Math.random() - 0.5) * 0.1,
-                    (Math.random() - 0.5) * 0.2
-                ));
-                sealData.direction.normalize();
+                    (Math.random() - 0.5) * 0.3
+                ).normalize();
+                naturalSwim.targetDirection.lerp(playDirection, 0.3);
             }
             
-            // Face movement direction
-            if (sealData.direction.length() > 0.1) {
-                seal.lookAt(seal.position.clone().add(sealData.direction));
-            }
+            // 平滑插值到目标方向
+            naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.015);
+            naturalSwim.currentDirection.normalize();
             
-            // Animate flippers
-            const time = performance.now() * 0.003;
+            // 速度平滑变化
+            const targetSpeed = naturalSwim.baseSpeed * (0.6 + Math.sin(naturalSwim.swimPhase) * 0.4);
+            naturalSwim.currentSpeed = THREE.MathUtils.lerp(naturalSwim.currentSpeed, targetSpeed, 0.04);
+            naturalSwim.swimPhase += deltaTime * 1.8;
+            
+            // 应用移动
+            const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(naturalSwim.currentSpeed);
+            seal.position.add(moveVector);
+            
+            // 平滑朝向移动方向
+            const lookAtTarget = seal.position.clone().add(naturalSwim.currentDirection);
+            seal.lookAt(lookAtTarget);
+            
+            // 鳍状肢动画（更慢更自然）
+            const swimTime = time * 0.002; // 很慢的游泳频率
             const flippers = sealData.flippers;
             if (flippers) {
-                const swimIntensity = sealData.speed / 3;
-                flippers.frontL.rotation.z = Math.sin(time * 4) * 0.4 * swimIntensity;
-                flippers.frontR.rotation.z = -Math.sin(time * 4) * 0.4 * swimIntensity;
-                flippers.backL.rotation.y = Math.PI / 4 + Math.sin(time * 6) * 0.3 * swimIntensity;
-                flippers.backR.rotation.y = -Math.PI / 4 - Math.sin(time * 6) * 0.3 * swimIntensity;
+                const swimIntensity = naturalSwim.currentSpeed * 20; // 根据速度调整动画强度
+                flippers.frontL.rotation.z = Math.sin(swimTime * 3) * 0.3 * swimIntensity;
+                flippers.frontR.rotation.z = -Math.sin(swimTime * 3) * 0.3 * swimIntensity;
+                flippers.backL.rotation.y = Math.PI / 4 + Math.sin(swimTime * 4) * 0.2 * swimIntensity;
+                flippers.backR.rotation.y = -Math.PI / 4 - Math.sin(swimTime * 4) * 0.2 * swimIntensity;
             }
             
-            // Keep in bounds
-            if (seal.position.length() > 120) {
-                sealData.direction.copy(seal.position.clone().negate().normalize());
+            // 边界控制（慢速返回）
+            if (seal.position.length() > 90) {
+                const returnDirection = seal.position.clone().negate().normalize();
+                naturalSwim.targetDirection.lerp(returnDirection, 0.08);
             }
+            
+            // 深度限制
+            seal.position.y = THREE.MathUtils.clamp(seal.position.y, -15, 8);
         });
     }
     
@@ -2080,50 +2116,86 @@ class OceanForest {
         this.africanPenguins.forEach(penguin => {
             const penguinData = penguin.userData;
             
-            // Diving behavior
-            penguinData.diveTimer -= deltaTime;
-            if (penguinData.diveTimer <= 0) {
-                penguinData.diveTimer = 10 + Math.random() * 20;
-                // Dive deep or surface
-                if (penguin.position.y > -5) {
-                    penguinData.direction.y = -1; // Deep dive
+            // 初始化自然游泳数据
+            if (!penguinData.naturalSwim) {
+                penguinData.naturalSwim = {
+                    baseSpeed: 0.015 + Math.random() * 0.005, // 慢速移动
+                    currentSpeed: 0,
+                    targetDirection: penguinData.direction.clone(),
+                    currentDirection: penguinData.direction.clone(),
+                    swimPhase: Math.random() * Math.PI * 2,
+                    lastDirectionChange: 0,
+                    directionChangeInterval: 4000 + Math.random() * 6000, // 4-10秒改变方向
+                    divePhase: Math.random() * Math.PI * 2,
+                    surfaceTimer: Math.random() * 15000
+                };
+            }
+            
+            const naturalSwim = penguinData.naturalSwim;
+            const time = performance.now();
+            
+            // 检查是否需要改变游泳方向 
+            if (time - naturalSwim.lastDirectionChange > naturalSwim.directionChangeInterval) {
+                naturalSwim.lastDirectionChange = time;
+                naturalSwim.directionChangeInterval = 4000 + Math.random() * 6000;
+                
+                // 生成新的目标方向（平滑转向）
+                const currentAngle = Math.atan2(naturalSwim.currentDirection.z, naturalSwim.currentDirection.x);
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.4; // 最大36度转向
+                const newAngle = currentAngle + turnAngle;
+                
+                naturalSwim.targetDirection.set(
+                    Math.cos(newAngle),
+                    (Math.random() - 0.5) * 0.3, // 轻微的垂直变化
+                    Math.sin(newAngle)
+                ).normalize();
+            }
+            
+            // 平滑插值到目标方向
+            naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.02);
+            naturalSwim.currentDirection.normalize();
+            
+            // 简单的浮潜行为
+            naturalSwim.surfaceTimer -= deltaTime * 1000;
+            if (naturalSwim.surfaceTimer <= 0) {
+                naturalSwim.surfaceTimer = 12000 + Math.random() * 8000; // 12-20秒浮潜一次
+                if (penguin.position.y > -3) {
+                    naturalSwim.targetDirection.y = -0.4; // 下潜
                 } else {
-                    penguinData.direction.y = 0.6; // Surface
+                    naturalSwim.targetDirection.y = 0.3; // 上浮
                 }
             }
             
-            // Fast, agile movement
-            penguin.position.addScaledVector(penguinData.direction, penguinData.speed * deltaTime);
+            // 速度平滑变化
+            const targetSpeed = naturalSwim.baseSpeed * (0.8 + Math.sin(naturalSwim.swimPhase) * 0.2);
+            naturalSwim.currentSpeed = THREE.MathUtils.lerp(naturalSwim.currentSpeed, targetSpeed, 0.05);
+            naturalSwim.swimPhase += deltaTime * 2;
             
-            // Frequent direction changes (very agile)
-            if (Math.random() < penguinData.agility) {
-                penguinData.direction.add(new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.4,
-                    (Math.random() - 0.5) * 0.3,
-                    (Math.random() - 0.5) * 0.4
-                ));
-                penguinData.direction.normalize();
-            }
+            // 应用移动
+            const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(naturalSwim.currentSpeed);
+            penguin.position.add(moveVector);
             
-            // Face movement direction
-            penguin.lookAt(penguin.position.clone().add(penguinData.direction));
+            // 平滑朝向移动方向
+            const lookAtTarget = penguin.position.clone().add(naturalSwim.currentDirection);
+            penguin.lookAt(lookAtTarget);
             
-            // Animate flippers (like underwater flying)
-            const time = performance.now() * 0.005;
+            // 翅膀拍打动画（更慢更自然）
+            const swimTime = time * 0.003; // 很慢的拍打频率
             const flippers = penguinData.flippers;
             if (flippers) {
-                const flapIntensity = penguinData.speed / 4;
-                flippers.left.rotation.z = Math.sin(time * 8) * 0.6 * flapIntensity;
-                flippers.right.rotation.z = -Math.sin(time * 8) * 0.6 * flapIntensity;
+                const flapIntensity = naturalSwim.currentSpeed * 15; // 根据速度调整拍打强度
+                flippers.left.rotation.z = Math.sin(swimTime * 4) * 0.4 * flapIntensity;
+                flippers.right.rotation.z = -Math.sin(swimTime * 4) * 0.4 * flapIntensity;
             }
             
-            // Keep in bounds
-            if (penguin.position.length() > 100) {
-                penguinData.direction.copy(penguin.position.clone().negate().normalize());
+            // 边界控制（慢速返回）
+            if (penguin.position.length() > 80) {
+                const returnDirection = penguin.position.clone().negate().normalize();
+                naturalSwim.targetDirection.lerp(returnDirection, 0.05);
             }
             
-            // Depth limits
-            penguin.position.y = THREE.MathUtils.clamp(penguin.position.y, -25, 10);
+            // 深度限制
+            penguin.position.y = THREE.MathUtils.clamp(penguin.position.y, -20, 8);
         });
     }
     
@@ -2131,51 +2203,100 @@ class OceanForest {
         this.greatWhiteSharks.forEach(shark => {
             const sharkData = shark.userData;
             
-            // Check if octopus is nearby - hunting mode
+            // 初始化自然游泳数据
+            if (!sharkData.naturalSwim) {
+                sharkData.naturalSwim = {
+                    baseSpeed: 0.012 + Math.random() * 0.008, // 慢速移动
+                    currentSpeed: 0,
+                    targetDirection: sharkData.direction.clone(),
+                    currentDirection: sharkData.direction.clone(),
+                    swimPhase: Math.random() * Math.PI * 2,
+                    lastDirectionChange: 0,
+                    directionChangeInterval: 6000 + Math.random() * 10000, // 6-16秒改变方向，很慢
+                    patrolRadius: 40 + Math.random() * 30,
+                    patrolCenter: shark.position.clone(),
+                    huntingCooldown: 0
+                };
+            }
+            
+            const naturalSwim = sharkData.naturalSwim;
+            const time = performance.now();
+            
+            // 简化的章鱼检测（减少攻击性）
             const distanceToOctopus = shark.position.distanceTo(this.octopusPosition);
-            if (distanceToOctopus < 25 && !sharkData.huntingMode) {
-                sharkData.huntingMode = true;
-                sharkData.speed = Math.min(sharkData.speed * 1.3, 0.03); // 轻微加速但限制最大速度，保持慢速
-                this.audio.playBubbleSound(200, 1); // Low ominous sound
-            } else if (distanceToOctopus > 40) {
-                sharkData.huntingMode = false;
-                sharkData.speed = 0.015 + Math.random() * 0.005; // 重置为慢速巡游速度
+            const isOctopusNear = distanceToOctopus < 15; // 更近才检测
+            
+            // 冷却时间管理
+            if (naturalSwim.huntingCooldown > 0) {
+                naturalSwim.huntingCooldown -= deltaTime * 1000;
             }
             
-            if (sharkData.huntingMode) {
-                // Chase octopus
-                const toOctopus = this.octopusPosition.clone().sub(shark.position).normalize();
-                sharkData.direction.lerp(toOctopus, 0.02);
-            } else {
-                // Patrol behavior - circle around center
-                const toCenter = sharkData.patrolCenter.clone().sub(shark.position);
-                const distanceToCenter = toCenter.length();
+            // 检查是否需要改变游泳方向
+            if (time - naturalSwim.lastDirectionChange > naturalSwim.directionChangeInterval) {
+                naturalSwim.lastDirectionChange = time;
+                naturalSwim.directionChangeInterval = 6000 + Math.random() * 10000;
                 
-                if (distanceToCenter > sharkData.patrolRadius + 20) {
-                    // Return to patrol area
-                    sharkData.direction.lerp(toCenter.normalize(), 0.01);
-                } else {
-                    // Circle patrol
-                    const circleDirection = new THREE.Vector3(-toCenter.z, 0, toCenter.x).normalize();
-                    sharkData.direction.lerp(circleDirection, 0.005);
-                }
+                // 生成新的目标方向（非常缓慢的转向）
+                const currentAngle = Math.atan2(naturalSwim.currentDirection.z, naturalSwim.currentDirection.x);
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.3; // 最大27度转向
+                const newAngle = currentAngle + turnAngle;
+                
+                naturalSwim.targetDirection.set(
+                    Math.cos(newAngle),
+                    (Math.random() - 0.5) * 0.2, // 轻微的垂直变化
+                    Math.sin(newAngle)
+                ).normalize();
             }
             
-            // Movement
-            shark.position.addScaledVector(sharkData.direction, sharkData.speed * deltaTime);
+            // 慢速巡游行为 - 围绕中心游泳
+            const toCenter = naturalSwim.patrolCenter.clone().sub(shark.position);
+            const distanceToCenter = toCenter.length();
             
-            // Face movement direction
-            shark.lookAt(shark.position.clone().add(sharkData.direction));
+            if (distanceToCenter > naturalSwim.patrolRadius) {
+                // 慢速返回巡游区域
+                naturalSwim.targetDirection.lerp(toCenter.normalize(), 0.02);
+            } else {
+                // 缓慢的圆形巡游
+                const tangentDirection = new THREE.Vector3(-toCenter.z, 0, toCenter.x).normalize();
+                naturalSwim.targetDirection.lerp(tangentDirection, 0.01);
+            }
             
-            // Animate fins
-            const time = performance.now() * 0.002;
+            // 极其缓慢的对章鱼反应（减少干扰性）
+            if (isOctopusNear && naturalSwim.huntingCooldown <= 0) {
+                const toOctopus = this.octopusPosition.clone().sub(shark.position).normalize();
+                naturalSwim.targetDirection.lerp(toOctopus, 0.005); // 极其轻微的跟随
+                naturalSwim.huntingCooldown = 5000; // 5秒冷却
+            }
+            
+            // 极其平滑的方向插值
+            naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.008);
+            naturalSwim.currentDirection.normalize();
+            
+            // 速度平滑变化
+            const targetSpeed = naturalSwim.baseSpeed * (0.7 + Math.sin(naturalSwim.swimPhase) * 0.3);
+            naturalSwim.currentSpeed = THREE.MathUtils.lerp(naturalSwim.currentSpeed, targetSpeed, 0.03);
+            naturalSwim.swimPhase += deltaTime * 1.5;
+            
+            // 应用移动
+            const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(naturalSwim.currentSpeed);
+            shark.position.add(moveVector);
+            
+            // 极其平滑的朝向变化
+            const lookAtTarget = shark.position.clone().add(naturalSwim.currentDirection);
+            shark.lookAt(lookAtTarget);
+            
+            // 缓慢的鱼鳍动画
+            const swimTime = time * 0.001; // 很慢的摆动频率
             const fins = sharkData.fins;
             if (fins) {
-                const swimIntensity = sharkData.speed / 2;
-                fins.tail.rotation.y = Math.sin(time * 6) * 0.3 * swimIntensity;
-                fins.pectoralL.rotation.z = Math.PI / 3 + Math.sin(time * 4) * 0.1 * swimIntensity;
-                fins.pectoralR.rotation.z = -Math.PI / 3 - Math.sin(time * 4) * 0.1 * swimIntensity;
+                const swimIntensity = naturalSwim.currentSpeed * 25; // 根据速度调整摆动强度
+                fins.tail.rotation.y = Math.sin(swimTime * 5) * 0.2 * swimIntensity;
+                fins.pectoralL.rotation.z = Math.PI / 3 + Math.sin(swimTime * 3) * 0.05 * swimIntensity;
+                fins.pectoralR.rotation.z = -Math.PI / 3 - Math.sin(swimTime * 3) * 0.05 * swimIntensity;
             }
+            
+            // 深度限制
+            shark.position.y = THREE.MathUtils.clamp(shark.position.y, -18, -3);
         });
     }
     
@@ -2231,34 +2352,35 @@ class OceanForest {
                 ).normalize();
             }
             
-            // 平滑插值到目标方向
-            naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, deltaTime * 1.2);
+            // 极其平滑的方向插值
+            naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.01);
             naturalSwim.currentDirection.normalize();
             
-            // 避开章鱼行为
+            // 简化的避让行为（减少干扰）
             const distanceToOctopus = fish.position.distanceTo(this.octopusPosition);
             let targetSpeed = naturalSwim.baseSpeed;
             
-            if (distanceToOctopus < 6) {
+            if (distanceToOctopus < 4) {
                 const avoidanceVector = fish.position.clone().sub(this.octopusPosition).normalize();
-                naturalSwim.targetDirection.lerp(avoidanceVector, deltaTime * 3.0);
-                targetSpeed = naturalSwim.baseSpeed * 1.8; // 适度加速
+                naturalSwim.targetDirection.lerp(avoidanceVector, 0.02); // 极其轻微的避让
+                targetSpeed = naturalSwim.baseSpeed * 1.2; // 轻微加速
             }
             
-            // 平滑速度变化
+            // 速度平滑变化
             naturalSwim.currentSpeed = THREE.MathUtils.lerp(
                 naturalSwim.currentSpeed,
                 targetSpeed,
-                deltaTime * 1.5
+                0.03
             );
             
-            // 添加自然游泳节奏
-            naturalSwim.swimPhase += deltaTime * 2.5;
-            const rhythmFactor = Math.sin(naturalSwim.swimPhase) * 0.3 + 1.0;
-            const finalSpeed = naturalSwim.currentSpeed * rhythmFactor * naturalSwim.personalityFactor;
+            // 简化的游泳节奏
+            naturalSwim.swimPhase += deltaTime * 1.5;
+            const rhythmFactor = 0.8 + Math.sin(naturalSwim.swimPhase) * 0.2;
+            const finalSpeed = naturalSwim.currentSpeed * rhythmFactor;
             
-            // 移动鱼类
-            fish.position.addScaledVector(naturalSwim.currentDirection, finalSpeed * deltaTime * 12);
+            // 慢速移动
+            const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(finalSpeed);
+            fish.position.add(moveVector);
             
             // 平滑旋转面向游泳方向
             const currentLookDir = new THREE.Vector3();
