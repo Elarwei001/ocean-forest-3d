@@ -802,7 +802,7 @@ class OceanForest {
             if (!fish.userData.swimData) {
                 // 初始化游泳数据
                 fish.userData.swimData = {
-                    baseSpeed: 0.03 + Math.random() * 0.02,
+                    baseSpeed: 0.01 + Math.random() * 0.005, // 大幅降低速度，仿照章鱼0.08的比例
                     currentSpeed: 0,
                     targetDirection: fish.userData.direction.clone(),
                     currentDirection: fish.userData.direction.clone(),
@@ -810,7 +810,7 @@ class OceanForest {
                     swimPhase: Math.random() * Math.PI * 2,
                     personalityFactor: 0.5 + Math.random() * 0.5, // 0.5-1.0个性因子
                     lastDirectionChange: 0,
-                    directionChangeInterval: 2000 + Math.random() * 3000 // 2-5秒改变一次方向
+                    directionChangeInterval: 3000 + Math.random() * 5000 // 3-8秒改变一次方向，更慢更稳定
                 };
             }
             
@@ -917,7 +917,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            seal.userData.speed = 0.08 + Math.random() * 0.04; // 大幅降低海豹速度
+            seal.userData.speed = 0.015 + Math.random() * 0.005; // 极大降低海豹速度，仿照章鱼慢速
             seal.userData.agility = 0.02;
             seal.userData.breathTimer = Math.random() * 20; // Surface breathing
             seal.userData.playfulTimer = Math.random() * 10; // Playful behavior
@@ -1099,7 +1099,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            penguin.userData.speed = 0.15 + Math.random() * 0.08; // 大幅降低企鹅速度
+            penguin.userData.speed = 0.02 + Math.random() * 0.01; // 极大降低企鹅速度，仿照章鱼慢速
             penguin.userData.diveTimer = Math.random() * 15;
             penguin.userData.agility = 0.03;
             
@@ -1309,7 +1309,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            shark.userData.speed = 0.1 + Math.random() * 0.05; // 大幅降低鲨鱼速度
+            shark.userData.speed = 0.015 + Math.random() * 0.005; // 极大降低鲨鱼速度，仿照章鱼慢速
             shark.userData.huntingMode = false;
             shark.userData.agility = 0.01;
             shark.userData.patrolRadius = distance;
@@ -2135,11 +2135,11 @@ class OceanForest {
             const distanceToOctopus = shark.position.distanceTo(this.octopusPosition);
             if (distanceToOctopus < 25 && !sharkData.huntingMode) {
                 sharkData.huntingMode = true;
-                sharkData.speed = Math.min(sharkData.speed * 1.3, 0.2); // 轻微加速但限制最大速度
+                sharkData.speed = Math.min(sharkData.speed * 1.3, 0.03); // 轻微加速但限制最大速度，保持慢速
                 this.audio.playBubbleSound(200, 1); // Low ominous sound
             } else if (distanceToOctopus > 40) {
                 sharkData.huntingMode = false;
-                sharkData.speed = 0.1 + Math.random() * 0.05; // 重置为正常巡游速度
+                sharkData.speed = 0.015 + Math.random() * 0.005; // 重置为慢速巡游速度
             }
             
             if (sharkData.huntingMode) {
@@ -2186,14 +2186,14 @@ class OceanForest {
             // 初始化自然游泳数据
             if (!fishData.naturalSwim) {
                 fishData.naturalSwim = {
-                    baseSpeed: 0.02 + Math.random() * 0.03,
+                    baseSpeed: 0.008 + Math.random() * 0.007, // 极大降低速度，仿照章鱼慢速
                     currentSpeed: fishData.speed,
                     targetDirection: fishData.direction.clone(),
                     currentDirection: fishData.direction.clone(),
                     swimPhase: Math.random() * Math.PI * 2,
                     personalityFactor: 0.6 + Math.random() * 0.4,
                     lastDirectionChange: performance.now(),
-                    directionChangeInterval: 1500 + Math.random() * 2500,
+                    directionChangeInterval: 2500 + Math.random() * 4000, // 更长的方向变化间隔
                     schoolingStrength: 0.3 + Math.random() * 0.4
                 };
             }
