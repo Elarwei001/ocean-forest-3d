@@ -421,6 +421,161 @@ body {
     }
 }
 
+/* Animal Control Styles */
+.animal-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.animal-control span {
+    flex: 1;
+    color: #87ceeb;
+    font-size: 14px;
+}
+
+.control-btn {
+    width: 24px;
+    height: 24px;
+    margin-left: 8px;
+    background: rgba(79, 195, 247, 0.2);
+    border: 1px solid rgba(79, 195, 247, 0.5);
+    border-radius: 4px;
+    color: #4fc3f7;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    background: rgba(79, 195, 247, 0.4);
+    border-color: #4fc3f7;
+    box-shadow: 0 0 8px rgba(79, 195, 247, 0.3);
+    transform: scale(1.1);
+}
+
+.control-btn:active {
+    transform: scale(0.95);
+    background: rgba(79, 195, 247, 0.6);
+}
+
+/* Fish Follow Panel */
+#fish-follow-panel {
+    position: absolute !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    top: auto !important;
+    left: auto !important;
+    background: rgba(0, 20, 40, 0.95);
+    color: #87ceeb;
+    padding: 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    border: 2px solid #4fc3f7;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+    min-width: 200px;
+    max-width: 280px;
+    z-index: 1000;
+}
+
+#fish-follow-panel h4 {
+    margin: 0 0 10px 0;
+    color: #4fc3f7;
+    text-shadow: 0 0 8px rgba(79, 195, 247, 0.5);
+    font-size: 16px;
+}
+
+.follow-fish-btn {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px 12px;
+    background: rgba(76, 175, 80, 0.4);
+    border: 1px solid rgba(76, 175, 80, 0.7);
+    border-radius: 6px;
+    color: #a5d6a7;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.follow-fish-btn:hover {
+    background: rgba(76, 175, 80, 0.6);
+    border-color: rgba(76, 175, 80, 0.9);
+    color: #c8e6c9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.follow-fish-btn.active {
+    background: rgba(244, 67, 54, 0.4);
+    border-color: rgba(244, 67, 54, 0.7);
+    color: #ffcdd2;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.follow-fish-btn.active:hover {
+    background: rgba(244, 67, 54, 0.6);
+    border-color: rgba(244, 67, 54, 0.9);
+    color: #ffebee;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.stop-follow-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(244, 67, 54, 0.4);
+    border: 1px solid rgba(244, 67, 54, 0.7);
+    border-radius: 6px;
+    color: #ffcdd2;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.stop-follow-btn:hover {
+    background: rgba(244, 67, 54, 0.6);
+    border-color: rgba(244, 67, 54, 0.9);
+    color: #ffebee;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.no-fish-message {
+    color: #81c784;
+    font-style: italic;
+    margin: 5px 0;
+    font-size: 12px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.control-btn:disabled:hover {
+    background: rgba(79, 195, 247, 0.2);
+    border-color: rgba(79, 195, 247, 0.5);
+    box-shadow: none;
+    transform: none;
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
     * {

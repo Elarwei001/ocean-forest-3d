@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ocean Forest Button Test</title>
+</head>
+<body>
+    <h1>Fish Button Test</h1>
+    
+    <div>
+        <span>🐟 Fish: <span id="fish-count">0</span></span>
+        <button onclick="addFish()">+</button>
+    </div>
+    
+    <div id="log"></div>
+    
+    <script>
+        let fishCount = 0;
+        
+        function addFish() {
+            console.log('addFish called!');
+            fishCount++;
+            document.getElementById('fish-count').textContent = fishCount;
+            document.getElementById('log').innerHTML += 'Fish added at: ' + new Date() + '<br>';
+            alert('Fish added! Count: ' + fishCount);
+        }
+        
+        console.log('Simple test loaded');
+    </script>
+</body>
+</html>

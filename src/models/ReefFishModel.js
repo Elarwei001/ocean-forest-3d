@@ -47,7 +47,9 @@ class ReefFishModel {
     }
     
     createSingleReefFish(fishType) {
-        const group = new THREE.Group();
+        try {
+            console.log('🐟 ReefFishModel: Creating single reef fish for type:', fishType.englishName);
+            const group = new THREE.Group();
         
         // 根据鱼类类型调整大小
         let size;
@@ -74,6 +76,11 @@ class ReefFishModel {
             return this.createSteentjieFish(fishType, size, group);
         } else {
             return this.createGenericFish(fishType, size, group);
+        }
+        } catch (error) {
+            console.error('❌ Error in createSingleReefFish:', error);
+            console.error('Fish type was:', fishType);
+            return null;
         }
     }
     

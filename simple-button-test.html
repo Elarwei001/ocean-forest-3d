@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Button Test</title>
+</head>
+<body>
+    <h1>Button Click Test</h1>
+    
+    <button onclick="testClick()">Test Button</button>
+    <button onclick="alert('Alert works!')">Alert Test</button>
+    <button onclick="console.log('Console test works!')">Console Test</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        function testClick() {
+            console.log('Test button clicked!');
+            document.getElementById('output').innerHTML = 'Button clicked at: ' + new Date();
+            alert('Test button works!');
+        }
+        
+        console.log('Simple test page loaded');
+    </script>
+</body>
+</html>

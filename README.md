@@ -20,11 +20,17 @@ An immersive 3D ocean ecosystem educational website built with Three.js, showcas
 - **Post-Processing Effects** - Depth of field and motion blur
 - **Cinematic Camera System** - Multiple professional camera modes
 
-### 🎮 Control Panel
-- **Real-time Parameter Adjustment** - Particle density, camera modes
-- **Performance Monitoring** - FPS and rendering statistics
-- **System Status** - Module loading status indicators
-- **Built-in Console** - Debug and status information
+### 🎨 Advanced 3D Model Generation
+- **Photogrammetry System** - Multi-image 3D reconstruction for hero species
+- **AI Depth Estimation** - Single-image depth mapping for fish textures
+- **Procedural Generation** - Biologically-accurate procedural marine life
+- **Intelligent Model Selection** - Automatic best-method selection per species
+- **Performance Optimization** - LOD systems and memory management
+
+### 🎮 Performance Monitoring
+- **Real-time FPS Display** - Performance tracking
+- **Marine Life Counters** - Live animal counts
+- **System Status** - Module loading indicators
 
 ## 🚀 Quick Start
 
@@ -90,15 +96,33 @@ ocean_forest/
 │   ├── systems/            # System modules
 │   │   ├── AudioSystem.js  # Audio system
 │   │   ├── EducationSystem.js # Education system
-│   │   └── RenderEngine.js # Render engine
-│   └── ui/                 # User interface
-│       └── CinematicControlPanel.js # Control panel
+│   │   ├── RenderEngine.js # Render engine
+│   │   ├── PhotogrammetrySystem.js # 3D reconstruction
+│   │   ├── AIDepthEstimation.js # AI depth mapping
+│   │   ├── ProceduralModelGenerator.js # Procedural models
+│   │   └── Advanced3DModelSystem.js # 3D model hub
+│   ├── ui/                 # User interface
+│   └── tests/              # Testing system
+│       └── 3DModelGenerationTest.js # 3D model tests
 ├── assets/                 # Resource files
 │   ├── styles/            # CSS styles
 │   ├── images/            # Image resources
 │   └── sounds/            # Audio files
 └── docs/                  # Documentation
+    └── 3D-Model-Generation-Guide.md # Complete 3D model guide
 ```
+
+## 📚 Documentation
+
+### 3D Model Generation System
+For comprehensive information about the advanced 3D model generation system, see:
+- **[3D Model Generation Guide](docs/3D-Model-Generation-Guide.md)** - Complete documentation
+- **Testing Guide** - Automated testing with `src/tests/3DModelGenerationTest.js`
+
+### Quick Start Guide
+1. **Hero Species** - Use photogrammetry with 3+ reference images
+2. **Standard Fish** - Use AI depth estimation with single reference image  
+3. **Background Species** - Use procedural generation with biological parameters
 
 ## 🔧 Technology Stack
 

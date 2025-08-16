@@ -42,39 +42,47 @@ class EducationSystem {
     }
     
     handleClick(event) {
-        // 计算鼠标位置
+        // Calculate mouse position
         const rect = this.canvas.getBoundingClientRect();
         this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         
-        // 更新射线
+        // Update raycaster
         this.raycaster.setFromCamera(this.mouse, this.camera);
         
-        // 计算交叉点
-        const intersects = this.raycaster.intersectObjects(this.clickableObjects, true);
+        // Get all objects in scene for intersection (including follow markers)
+        const allObjects = [];
+        this.scene.traverse((child) => {
+            if (child.isMesh || child.isSprite) {
+                allObjects.push(child);
+            }
+        });
         
-        let speciesFound = false;
+        // Calculate intersections
+        const intersects = this.raycaster.intersectObjects(allObjects, false);
+        
+        let actionTaken = false;
         
         if (intersects.length > 0) {
-            // 寻找具有物种数据的对象
+            // Check for species info clicks (follow markers now in UI panel)
             for (let intersect of intersects) {
                 let obj = intersect.object;
                 
-                // 向上遍历层次结构
+                // Search up hierarchy for species data
                 while (obj && !obj.userData.species) {
                     obj = obj.parent;
                 }
                 
                 if (obj && obj.userData.species) {
                     this.showSpeciesInfo(obj.userData.species);
-                    speciesFound = true;
+                    actionTaken = true;
                     break;
                 }
             }
         }
         
-        // 如果没有点击物种，隐藏信息面板
-        if (!speciesFound && !this.infoPanel.classList.contains('hidden')) {
+        // If no species clicked and info panel is open, hide it (but not for follow clicks)
+        if (!actionTaken && !this.infoPanel.classList.contains('hidden')) {
             this.hideSpeciesInfo();
         }
     }

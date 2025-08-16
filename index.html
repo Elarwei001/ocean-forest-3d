@@ -24,22 +24,54 @@
     <!-- UI Overlay -->
     <div id="ui-overlay">
         <div id="controls">
-            <h3>🐙 章鱼控制 / Octopus Controls</h3>
-            <p><strong>WASD/方向键 / Arrow Keys:</strong> 移动 / Move around</p>
-            <p><strong>鼠标 / Mouse:</strong> 观察 / Look around</p>
-            <p><strong>M键 / M Key:</strong> 切换鼠标控制 / Toggle mouse control</p>
-            <p><strong>空格 / Space:</strong> 上游 / Swim up</p>
-            <p><strong>Shift:</strong> 下游 / Swim down</p>
-            <div class="info">欢迎来到南非海洋森林 / Welcome to South African Ocean Forest</div>
+            <h3>🐙 Octopus Controls</h3>
+            <p><strong>WASD/Arrow Keys:</strong> Move around</p>
+            <p><strong>Mouse:</strong> Look around</p>
+            <p><strong>M Key:</strong> Toggle mouse control</p>
+            <p><strong>Space:</strong> Swim up</p>
+            <p><strong>Shift:</strong> Swim down</p>
+            <div class="info">Welcome to South African Ocean Forest</div>
         </div>
         
         <div id="performance">
             <div>FPS: <span id="fps">60</span></div>
             <div>🌿 Kelp: <span id="kelp-count">0</span></div>
-            <div>🐟 Fish: <span id="fish-count">0</span></div>
-            <div>🦭 Seals: <span id="seal-count">0</span></div>
-            <div>🐧 Penguins: <span id="penguin-count">0</span></div>
-            <div>🦈 Sharks: <span id="shark-count">0</span></div>
+            
+            <!-- Interactive Marine Life Controls -->
+            <div class="animal-control">
+                <span>🐟 Fish: <span id="fish-count">0</span></span>
+                <button class="control-btn" onclick="removeFish()">-</button>
+                <button class="control-btn" onclick="addFish()">+</button>
+            </div>
+            
+            <div class="animal-control">
+                <span>🦭 Seals: <span id="seal-count">0</span></span>
+                <button class="control-btn" onclick="removeSeal()">-</button>
+                <button class="control-btn" onclick="addSeal()">+</button>
+            </div>
+            
+            <div class="animal-control">
+                <span>🐧 Penguins: <span id="penguin-count">0</span></span>
+                <button class="control-btn" onclick="removePenguin()">-</button>
+                <button class="control-btn" onclick="addPenguin()">+</button>
+            </div>
+            
+            <div class="animal-control">
+                <span>🦈 Sharks: <span id="shark-count">0</span></span>
+                <button class="control-btn" onclick="removeShark()">-</button>
+                <button class="control-btn" onclick="addShark()">+</button>
+            </div>
+        </div>
+        
+        <!-- Fish Follow Panel -->
+        <div id="fish-follow-panel" style="position: absolute !important; bottom: 20px !important; right: 20px !important; top: auto !important; left: auto !important; z-index: 1000 !important;">
+            <h4>🎯 Follow Fish</h4>
+            <div id="follow-buttons-container">
+                <p class="no-fish-message">Add fish to see follow options</p>
+            </div>
+            <button id="stop-follow-btn" class="stop-follow-btn" onclick="stopFollowingAll()" style="display: none;">
+                Stop Following
+            </button>
         </div>
         
         <!-- Educational Information Panel -->
@@ -89,18 +121,148 @@
     <script src="src/systems/AdvancedParticleSystem.js"></script>
     <script src="src/systems/MarineLifeBehavior.js"></script>
     <script src="src/systems/CinematicCameraSystem.js"></script>
-    <script src="src/ui/CinematicControlPanel.js"></script>
+    <script src="src/systems/PhotogrammetrySystem.js"></script>
+    <script src="src/systems/AIDepthEstimation.js"></script>
+    <script src="src/systems/ProceduralModelGenerator.js"></script>
+    <script src="src/systems/Advanced3DModelSystem.js"></script>
+    
+    <!-- Testing System -->
+    <script src="src/tests/3DModelGenerationTest.js"></script>
     
     <!-- Main Application Initialization -->
     <script>
         // Initialize Ocean Forest Application
         let oceanForest = null;
         
+        // Marine Life Control Functions
+        function addFish() {
+            console.log('🐟 addFish button clicked!');
+            
+            // Find and disable the button temporarily
+            const fishButtons = document.querySelectorAll('button[onclick="addFish()"]');
+            fishButtons.forEach(btn => btn.disabled = true);
+            
+            try {
+                // Check if Ocean Forest is initialized
+                if (!oceanForest) {
+                    alert('⏳ Ocean Forest is still loading. Please wait a moment...');
+                    console.log('❌ oceanForest not initialized yet');
+                    return;
+                }
+                
+                // Check if the required method exists
+                if (!oceanForest.addCapeReefFish) {
+                    alert('❌ Fish creation system not available');
+                    console.error('❌ addCapeReefFish method not found');
+                    console.log('Available methods:', Object.keys(oceanForest));
+                    return;
+                }
+                
+                // Fish creation is now built directly into addCapeReefFish method
+                // No external dependencies required
+                
+                console.log('🐟 Calling oceanForest.addCapeReefFish()...');
+                const result = oceanForest.addCapeReefFish();
+                
+                if (result) {
+                    console.log('✅ Fish added successfully');
+                    // Show a non-blocking success message
+                    const fishCount = document.getElementById('fish-count');
+                    if (fishCount) {
+                        fishCount.style.color = '#00ff00';
+                        setTimeout(() => fishCount.style.color = '', 1000);
+                    }
+                } else {
+                    alert('❌ Failed to add fish');
+                    console.error('❌ addCapeReefFish returned null/undefined');
+                }
+            } catch (error) {
+                alert('❌ Error adding fish: ' + error.message);
+                console.error('❌ Error in addFish():', error);
+            } finally {
+                // Re-enable buttons
+                setTimeout(() => {
+                    fishButtons.forEach(btn => btn.disabled = false);
+                }, 500);
+            }
+        }
+        
+        function removeFish() {
+            if (oceanForest && oceanForest.removeCapeReefFish) {
+                const removed = oceanForest.removeCapeReefFish();
+                if (removed) {
+                    console.log('🐟 Removed fish');
+                } else {
+                    console.log('🐟 No fish to remove');
+                }
+            }
+        }
+        
+        function addSeal() {
+            if (oceanForest && oceanForest.addCapeFurSeal) {
+                oceanForest.addCapeFurSeal();
+                console.log('🦭 Added seal');
+            }
+        }
+        
+        function removeSeal() {
+            if (oceanForest && oceanForest.removeCapeFurSeal) {
+                const removed = oceanForest.removeCapeFurSeal();
+                if (removed) {
+                    console.log('🦭 Removed seal');
+                } else {
+                    console.log('🦭 No seal to remove');
+                }
+            }
+        }
+        
+        function addPenguin() {
+            if (oceanForest && oceanForest.addAfricanPenguin) {
+                oceanForest.addAfricanPenguin();
+                console.log('🐧 Added penguin');
+            }
+        }
+        
+        function removePenguin() {
+            if (oceanForest && oceanForest.removeAfricanPenguin) {
+                const removed = oceanForest.removeAfricanPenguin();
+                if (removed) {
+                    console.log('🐧 Removed penguin');
+                } else {
+                    console.log('🐧 No penguin to remove');
+                }
+            }
+        }
+        
+        function addShark() {
+            if (oceanForest && oceanForest.addGreatWhiteShark) {
+                oceanForest.addGreatWhiteShark();
+                console.log('🦈 Added shark');
+            }
+        }
+        
+        function removeShark() {
+            if (oceanForest && oceanForest.removeGreatWhiteShark) {
+                const removed = oceanForest.removeGreatWhiteShark();
+                if (removed) {
+                    console.log('🦈 Removed shark');
+                } else {
+                    console.log('🦈 No shark to remove');
+                }
+            }
+        }
+        
+        function stopFollowingAll() {
+            if (oceanForest && oceanForest.stopFollowingAll) {
+                oceanForest.stopFollowingAll();
+            }
+        }
+        
         window.addEventListener('load', async () => {
             try {
                 // Wait for all modules to load
                 if (window.moduleManager) {
-                    console.log('🔄 等待模块加载...');
+                    console.log('🔄 Waiting for modules to load...');
                     const moduleReady = await window.moduleManager.waitForModules();
                     
                     if (moduleReady) {
@@ -113,35 +275,16 @@
                             console.log('🌊 Ocean Forest Application Started');
                             console.log('🎬 Initializing cinematic systems...');
                             
-                            // Initialize control panel after ocean forest is ready
+                            // Add visual indicator that system is ready
                             setTimeout(() => {
-                                console.log('🎮 开始初始化控制面板...');
-                                console.log('检查 CinematicControlPanel 类:', !!window.CinematicControlPanel);
-                                console.log('检查现有面板实例:', !!window.cinematicPanel);
-                                
-                                // 强制初始化控制面板
-                                if (window.CinematicControlPanel) {
-                                    try {
-                                        window.cinematicPanel = new CinematicControlPanel();
-                                        console.log('✅ 电影级控制面板已强制初始化');
-                                        // 立即检查状态
-                                        setTimeout(() => {
-                                            if (window.cinematicPanel) {
-                                                window.cinematicPanel.checkStatus();
-                                                console.log('🎬 控制面板状态检查完成');
-                                            }
-                                        }, 500);
-                                    } catch (error) {
-                                        console.error('❌ 控制面板初始化失败:', error);
-                                    }
-                                } else {
-                                    console.error('❌ CinematicControlPanel类未找到，请检查脚本加载');
-                                    // 列出当前window下所有可用的变量
-                                    console.log('当前window对象中的相关变量:');
-                                    Object.keys(window).filter(key => key.toLowerCase().includes('cinema')).forEach(key => {
-                                        console.log(' -', key, ':', typeof window[key]);
-                                    });
+                                const controls = document.getElementById('controls');
+                                if (controls) {
+                                    const readyIndicator = document.createElement('div');
+                                    readyIndicator.style.cssText = 'color: #00ff00; margin-top: 10px; font-weight: bold;';
+                                    readyIndicator.textContent = '✅ System Ready - Marine controls active';
+                                    controls.appendChild(readyIndicator);
                                 }
+                                console.log('🎯 Ocean Forest system fully ready for interaction');
                             }, 2000);
                             
                         } else {

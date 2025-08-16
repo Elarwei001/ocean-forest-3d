@@ -43,8 +43,7 @@ class ModuleManager {
             'CinematicAnimationSystem',
             'AdvancedParticleSystem', 
             'MarineLifeBehavior',
-            'CinematicCameraSystem',
-            'CinematicControlPanel'
+            'CinematicCameraSystem'
         ];
         
         const loadedModules = Array.from(this.modules.keys());

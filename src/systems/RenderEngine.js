@@ -1,4 +1,3 @@
-// 渲染引擎 - 主渲染循环和后处理效果
 // Render Engine - Main render loop and post-processing effects
 
 class RenderEngine {
@@ -11,13 +10,13 @@ class RenderEngine {
         this.lastTime = performance.now();
         this.fps = 60;
         
-        // 后处理标志
+        // Post-processing flag
         this.enablePostProcessing = false;
     }
     
     setupPostProcessing() {
-        // 基础后处理设置
-        // 可以在这里添加bloom、SSAO等效果
+        // Basic post-processing setup
+        // Can add bloom, SSAO and other effects here
         console.log('Post-processing setup (basic)');
     }
     
@@ -25,33 +24,33 @@ class RenderEngine {
         const animate = (currentTime) => {
             const deltaTime = this.clock.getElapsedTime();
             
-            // 更新性能指标
+            // Update performance metrics
             this.updatePerformance(currentTime);
             
-            // 更新海洋环境
+            // Update ocean environment
             this.updateOceanEnvironment(oceanForest, deltaTime);
             
-            // 更新海洋生物
+            // Update marine life
             this.updateMarineLife(oceanForest, deltaTime);
             
-            // 更新章鱼
+            // Update octopus
             this.updateOctopus(oceanForest, deltaTime);
             
-            // 更新摄像机
+            // Update camera
             this.updateCamera(oceanForest, deltaTime);
             
-            // 更新光照效果
+            // Update lighting effects
             this.updateLighting(oceanForest, deltaTime);
             
-            // 更新高级系统（如果可用）
+            // Update advanced systems (if available)
             this.updateAdvancedSystems(oceanForest, deltaTime);
             
-            // 更新浮动标签
+            // Update floating labels
             if (oceanForest.floatingLabels) {
                 oceanForest.floatingLabels.updateFloatingLabels();
             }
             
-            // 渲染场景
+            // Render scene
             this.renderer.render(this.scene, this.camera);
             
             requestAnimationFrame(animate);
@@ -61,41 +60,50 @@ class RenderEngine {
     }
     
     updateOceanEnvironment(oceanForest, deltaTime) {
-        // 更新海带森林
+        // Update kelp forest
         if (oceanForest.kelpForest && oceanForest.oceanEnvironment) {
             oceanForest.oceanEnvironment.updateKelp(oceanForest.kelpForest, deltaTime);
         }
         
-        // 更新气泡
+        // Update bubbles
         if (oceanForest.bubbles && oceanForest.oceanEnvironment) {
             oceanForest.oceanEnvironment.updateBubbles(oceanForest.bubbles, deltaTime);
         }
         
-        // 更新光线
+        // Update light rays
         if (oceanForest.lightRays && oceanForest.oceanEnvironment) {
             oceanForest.oceanEnvironment.updateLightRays(oceanForest.lightRays, deltaTime);
         }
         
-        // 更新天空盒
+        // Update skybox
         if (oceanForest.skyboxMaterial) {
             oceanForest.skyboxMaterial.uniforms.time.value = deltaTime;
         }
     }
     
     updateMarineLife(oceanForest, deltaTime) {
-        // 更新南非海狗
+        // Update Cape fur seals
         if (oceanForest.marineAnimals) {
             oceanForest.marineAnimals.updateCapeFurSeals(deltaTime);
             oceanForest.marineAnimals.updateAfricanPenguins(deltaTime);
         }
         
-        // 更新鲨鱼和鱼类
+        // Update sharks and fish
         if (oceanForest.sharksAndFish) {
             oceanForest.sharksAndFish.updateGreatWhiteSharks(deltaTime);
             oceanForest.sharksAndFish.updateCapeReefFish(deltaTime);
         }
         
-        // 更新海胆和海葵
+        // Update our custom fish movement (for fish created via buttons)
+        if (oceanForest.capeReefFish && oceanForest.capeReefFish.length > 0) {
+            // Debug: Log occasionally to verify this is being called
+            if (Math.random() < 0.001) { // Very rare logging
+                console.log('Updating fish movement, fish count:', oceanForest.capeReefFish.length);
+            }
+            oceanForest.updateFishMovement(deltaTime);
+        }
+        
+        // Update sea urchins and anemones
         this.updateSeaUrchinFields(oceanForest.seaUrchinFields, deltaTime);
         this.updateSeaAnemones(oceanForest.seaAnemones, deltaTime);
     }
@@ -103,22 +111,66 @@ class RenderEngine {
     updateOctopus(oceanForest, deltaTime) {
         if (!oceanForest.octopusModel) return;
         
-        // 处理输入
-        const movement = this.processOctopusInput(oceanForest.keys);
-        
-        // 更新章鱼模型
-        oceanForest.octopusModel.updateOctopus(
-            deltaTime,
-            oceanForest.octopusPosition,
-            oceanForest.keys,
-            movement.isMoving,
-            movement.direction
-        );
-        
-        // 更新章鱼位置引用
-        const octopusPos = oceanForest.octopusModel.getPosition();
-        if (octopusPos) {
-            oceanForest.octopusPosition.copy(octopusPos);
+        // Check if we're following a fish - prioritize follow behavior
+        if (oceanForest.followTarget) {
+            // When following, apply follow behavior first
+            if (oceanForest.updateOctopusFollow) {
+                console.log('🎯 Applying follow behavior, target:', oceanForest.followTarget.userData.species.englishName);
+                oceanForest.updateOctopusFollow(deltaTime);
+            }
+            
+            // IMPORTANT: Always update octopus natural animations while following
+            // This preserves tentacle flowing, body animations, and natural movements
+            oceanForest.octopusModel.updateOctopus(
+                deltaTime,
+                oceanForest.octopusPosition,
+                oceanForest.keys,
+                true, // Mark as moving to keep animations active
+                'swimming' // Direction doesn't matter, we want natural swimming animation
+            );
+            
+            // Update the octopus model position to the follow position (after animations)
+            if (oceanForest.octopusModel.mesh) {
+                oceanForest.octopusModel.mesh.position.copy(oceanForest.octopusPosition);
+            }
+            
+            // Check for manual override with keyboard input during following
+            const movement = this.processOctopusInput(oceanForest.keys);
+            if (movement.isMoving) {
+                // Manual input detected - temporarily disable following for responsive control
+                console.log('📱 Manual control detected while following - allowing manual override');
+                oceanForest.octopusModel.updateOctopus(
+                    deltaTime,
+                    oceanForest.octopusPosition,
+                    oceanForest.keys,
+                    movement.isMoving,
+                    movement.direction
+                );
+                
+                // Update position from manual control
+                const octopusPos = oceanForest.octopusModel.getPosition();
+                if (octopusPos) {
+                    oceanForest.octopusPosition.copy(octopusPos);
+                }
+            }
+        } else {
+            // Normal manual control when not following
+            const movement = this.processOctopusInput(oceanForest.keys);
+            
+            // Update octopus model
+            oceanForest.octopusModel.updateOctopus(
+                deltaTime,
+                oceanForest.octopusPosition,
+                oceanForest.keys,
+                movement.isMoving,
+                movement.direction
+            );
+            
+            // Update octopus position reference
+            const octopusPos = oceanForest.octopusModel.getPosition();
+            if (octopusPos) {
+                oceanForest.octopusPosition.copy(octopusPos);
+            }
         }
     }
     
@@ -157,25 +209,38 @@ class RenderEngine {
     updateCamera(oceanForest, deltaTime) {
         if (!oceanForest.octopusPosition) return;
         
-        // 摄像机跟随章鱼
+        // When octopus is following a fish, keep camera stationary to watch the dramatic flight
+        if (oceanForest.followTarget) {
+            // Keep camera in fixed position to observe the octopus flying to fish
+            // Only allow mouse look around
+            const lookTarget = oceanForest.octopusPosition.clone();
+            lookTarget.x += oceanForest.mouse.x * 2;
+            lookTarget.y += oceanForest.mouse.y * 1.5;
+            
+            this.camera.lookAt(lookTarget);
+            console.log('📹 Camera fixed - watching octopus fly to fish');
+            return;
+        }
+        
+        // Normal camera follows octopus when not following fish
         const targetPosition = oceanForest.octopusPosition.clone().add(oceanForest.cameraOffset);
         
-        // 更平滑的插值
+        // Smoother interpolation
         this.camera.position.lerp(targetPosition, 0.08);
         
-        // 看向章鱼，带轻微鼠标影响
+        // Look at octopus with slight mouse influence
         const lookTarget = oceanForest.octopusPosition.clone();
         lookTarget.x += oceanForest.mouse.x * 2;
         lookTarget.y += oceanForest.mouse.y * 1.5;
         
         this.camera.lookAt(lookTarget);
         
-        // 轻微的摄像机摇摆（游泳时）- 可选效果
-        const enableCameraSwag = false; // 设为false禁用摇摆效果
+        // Slight camera sway (when swimming) - optional effect
+        const enableCameraSwag = false; // Set to false to disable sway effect
         const movement = this.processOctopusInput(oceanForest.keys);
         if (movement.isMoving && enableCameraSwag) {
             const time = performance.now() * 0.001;
-            // 使用正弦波创造平滑的摇摆效果
+            // Use sine wave to create smooth sway effect
             const smoothShakeX = Math.sin(time * 8) * 0.015;
             const smoothShakeY = Math.sin(time * 6) * 0.008;
             this.camera.position.x += smoothShakeX;
@@ -184,12 +249,12 @@ class RenderEngine {
     }
     
     updateLighting(oceanForest, deltaTime) {
-        // 更新焦散光效
+        // Update caustic light effects
         if (oceanForest.causticLights && oceanForest.oceanEnvironment) {
             oceanForest.oceanEnvironment.updateCausticLights(oceanForest.causticLights, deltaTime);
         }
         
-        // 动态光线强度
+        // Dynamic light intensity
         const timeOfDay = Math.sin(deltaTime * 0.1) * 0.2 + 0.8;
         
         if (oceanForest.directionalLight) {
@@ -203,11 +268,11 @@ class RenderEngine {
         seaUrchinFields.forEach((urchin, index) => {
             const time = deltaTime + index * 0.5;
             
-            // 海胆的轻微呼吸效果
+            // Sea urchin gentle breathing effect
             const breathe = 1 + Math.sin(time * 1.5) * 0.05;
             urchin.scale.setScalar(breathe);
             
-            // 棘刺轻微摆动
+            // Spine gentle swaying
             if (urchin.children) {
                 urchin.children.forEach((spine, spineIndex) => {
                     const spineTime = time + spineIndex * 0.1;
@@ -223,14 +288,14 @@ class RenderEngine {
         seaAnemones.forEach((anemone, index) => {
             const time = deltaTime + index * 0.7;
             
-            // 海葵触手摆动
+            // Anemone tentacle swaying
             anemone.rotation.y = Math.sin(time * 0.8) * 0.2;
             
-            // 开合效果
+            // Opening and closing effect
             const openClose = Math.sin(time * 0.5) * 0.1 + 0.9;
             anemone.scale.y = openClose;
             
-            // 颜色变化
+            // Color changes
             if (anemone.material) {
                 const colorShift = Math.sin(time * 0.3) * 0.1;
                 anemone.material.color.setHSL(0.8 + colorShift, 0.8, 0.6);
@@ -246,7 +311,7 @@ class RenderEngine {
             this.frameCount = 0;
             this.lastTime = currentTime;
             
-            // 更新UI显示
+            // Update UI display
             const fpsElement = document.getElementById('fps');
             if (fpsElement) {
                 fpsElement.textContent = this.fps;
@@ -254,7 +319,7 @@ class RenderEngine {
         }
     }
     
-    // 调整渲染质量（性能优化）
+    // Adjust render quality (performance optimization)
     adjustQuality(level) {
         switch(level) {
             case 'low':
@@ -272,28 +337,37 @@ class RenderEngine {
         }
     }
     
-    // 更新高级系统
+    // Update advanced systems
     updateAdvancedSystems(oceanForest, deltaTime) {
-        // 更新电影级动画系统
+        // Update advanced 3D model animations
+        if (oceanForest.advanced3DModels) {
+            try {
+                oceanForest.advanced3DModels.updateAnimations(deltaTime);
+            } catch (error) {
+                console.warn('Advanced 3D model system update error:', error);
+            }
+        }
+        
+        // Update cinematic animation system
         if (oceanForest.cinematicAnimation) {
             try {
                 oceanForest.cinematicAnimation.update();
                 this.applyCinematicAnimations(oceanForest);
             } catch (error) {
-                console.warn('电影级动画系统更新错误:', error);
+                console.warn('Cinematic animation system update error:', error);
             }
         }
         
-        // 更新高级粒子系统
+        // Update advanced particle system
         if (oceanForest.advancedParticles) {
             try {
                 oceanForest.advancedParticles.update(deltaTime);
             } catch (error) {
-                console.warn('高级粒子系统更新错误:', error);
+                console.warn('Advanced particle system update error:', error);
             }
         }
         
-        // 更新海洋生物行为系统
+        // Update marine life behavior system
         if (oceanForest.marineLifeBehavior) {
             try {
                 const allAnimals = [
@@ -304,25 +378,25 @@ class RenderEngine {
                 ];
                 oceanForest.marineLifeBehavior.update(allAnimals, deltaTime);
             } catch (error) {
-                console.warn('海洋生物行为系统更新错误:', error);
+                console.warn('Marine life behavior system update error:', error);
             }
         }
         
-        // 更新电影级摄像机系统
+        // Update cinematic camera system
         if (oceanForest.cinematicCamera) {
             try {
                 oceanForest.cinematicCamera.update(deltaTime, oceanForest.octopusPosition, oceanForest.keys);
             } catch (error) {
-                console.warn('电影级摄像机系统更新错误:', error);
+                console.warn('Cinematic camera system update error:', error);
             }
         }
     }
     
-    // 应用电影级动画到海洋生物
+    // Apply cinematic animations to marine life
     applyCinematicAnimations(oceanForest) {
         if (!oceanForest.cinematicAnimation) return;
         
-        // 为不同类型的海洋生物应用电影级动画
+        // Apply cinematic animations to different types of marine life
         if (oceanForest.capeReefFish) {
             oceanForest.capeReefFish.forEach(fish => {
                 oceanForest.cinematicAnimation.animateMarineLife(fish, 'swimming', 1.0);
@@ -348,7 +422,7 @@ class RenderEngine {
         }
     }
     
-    // 获取渲染统计信息
+    // Get render statistics
     getRenderStats() {
         return {
             fps: this.fps,
@@ -359,7 +433,7 @@ class RenderEngine {
     }
 }
 
-// 注册模块
+// Register module
 if (window.moduleManager) {
     window.moduleManager.registerModule('RenderEngine', RenderEngine);
 }
