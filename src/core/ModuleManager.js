@@ -1,4 +1,4 @@
-// 模块管理器 - 统一管理所有模块
+// Module Manager - Unified management of all modules
 // Module Manager - Unified management of all modules
 
 class ModuleManager {
@@ -8,21 +8,21 @@ class ModuleManager {
         this.loadingCallbacks = [];
     }
     
-    // 注册模块
+    // Register module
     registerModule(name, moduleClass) {
         this.modules.set(name, moduleClass);
         console.log(`Module registered: ${name}`);
         
-        // 检查是否所有模块都已加载
+        // Check if all modules are loaded
         this.checkModulesReady();
     }
     
-    // 获取模块
+    // Get module
     getModule(name) {
         return this.modules.get(name);
     }
     
-    // 检查所有必需模块是否已加载
+    // Check if all required modules are loaded
     checkModulesReady() {
         const requiredModules = [
             'OceanForest',
@@ -38,7 +38,7 @@ class ModuleManager {
             'RenderEngine'
         ];
         
-        // 可选的高级模块
+        // Optional advanced modules
         const optionalModules = [
             'CinematicAnimationSystem',
             'AdvancedParticleSystem', 
@@ -65,19 +65,19 @@ class ModuleManager {
         return allLoaded;
     }
     
-    // 所有模块准备就绪时的回调
+    // Callback when all modules are ready
     onAllModulesReady() {
         console.log('All modules loaded successfully');
         
-        // 执行所有等待的回调
+        // Execute all waiting callbacks
         this.loadingCallbacks.forEach(callback => callback());
         this.loadingCallbacks = [];
         
-        // 初始化主应用
+        // Initialize main application
         this.initializeApplication();
     }
     
-    // 添加加载完成回调
+    // Add loading completion callback
     onReady(callback) {
         if (this.initialized) {
             callback();
@@ -86,10 +86,10 @@ class ModuleManager {
         }
     }
     
-    // 初始化主应用
+    // Initialize main application
     initializeApplication() {
         try {
-            // 创建主应用实例
+            // Create main application instance
             const OceanForestClass = this.getModule('OceanForest');
             if (OceanForestClass) {
                 window.oceanForestApp = new OceanForestClass();
@@ -103,7 +103,7 @@ class ModuleManager {
         }
     }
     
-    // 显示错误信息
+    // Show error message
     showErrorMessage(message) {
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = `
@@ -119,14 +119,14 @@ class ModuleManager {
             font-family: Arial, sans-serif;
         `;
         errorDiv.innerHTML = `
-            <h3>加载错误 / Loading Error</h3>
+            <h3>Loading Error</h3>
             <p>${message}</p>
-            <p>请刷新页面重试 / Please refresh the page to retry</p>
+            <p>Please refresh the page to retry</p>
         `;
         document.body.appendChild(errorDiv);
     }
     
-    // 等待所有模块加载完成的Promise方法
+    // Promise method to wait for all modules to load
     waitForModules(timeout = 10000) {
         return new Promise((resolve, reject) => {
             const checkModules = () => {
@@ -149,7 +149,7 @@ class ModuleManager {
         });
     }
     
-    // 获取模块加载状态
+    // Get module loading status
     getLoadingStatus() {
         const requiredModules = [
             'OceanForest',
@@ -172,19 +172,19 @@ class ModuleManager {
     }
 }
 
-// 创建全局模块管理器实例
+// Create global module manager instance
 window.moduleManager = new ModuleManager();
 
-// 模块加载完成后的自动检查
+// Automatic check after module loading
 window.addEventListener('DOMContentLoaded', () => {
-    // 延迟检查，确保所有脚本都已加载
+    // Delayed check to ensure all scripts are loaded
     setTimeout(() => {
         console.log('DOMContentLoaded - checking modules...');
         window.moduleManager.checkModulesReady();
     }, 500);
 });
 
-// 额外的检查机制
+// Additional check mechanism
 setTimeout(() => {
     console.log('Fallback check - checking modules...');
     if (window.moduleManager && !window.moduleManager.initialized) {
@@ -192,7 +192,7 @@ setTimeout(() => {
     }
 }, 2000);
 
-// 导出模块管理器（如果使用模块系统）
+// Export module manager (if using module system)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ModuleManager;
 }

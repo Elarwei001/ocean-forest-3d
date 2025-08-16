@@ -1,25 +1,25 @@
-// 主应用类 - 海洋森林核心引擎
+// Main Application Class - Ocean Forest Core Engine
 // Main Application Class - Ocean Forest Core Engine
 
 class OceanForest {
     constructor() {
-        // 初始化基础属性
+        // Initialize basic properties
         this.canvas = document.getElementById('webgl-canvas');
         this.loadingScreen = document.getElementById('loading-screen');
         
-        // 性能跟踪
+        // Performance tracking
         this.frameCount = 0;
         this.lastTime = performance.now();
         this.fps = 60;
         
-        // 游戏对象
+        // Game objects
         this.octopus = null;
         this.kelp = [];
         this.fish = [];
         this.bubbles = [];
         this.particles = [];
         
-        // 南非海洋生物
+        // South African marine life
         this.capeFurSeals = [];
         this.greatWhiteSharks = [];
         this.africanPenguins = [];
@@ -27,20 +27,20 @@ class OceanForest {
         this.seaUrchinFields = [];
         this.seaAnemones = [];
         
-        // 控制系统
+        // Control system
         this.keys = {};
         this.mouse = { x: 0, y: 0 };
         this.mouseControl = { enabled: false, sensitivity: 0.005 };
         this.octopusPosition = new THREE.Vector3(0, -5, 0);
         this.cameraOffset = new THREE.Vector3(0, 3, 8);
         
-        // 系统组件
+        // System components
         this.audio = new OceanAudio();
         window.audioSystem = this.audio;
         this.education = null;
         this.speciesLabels = [];
         
-        // 全局引用，供教育系统使用
+        // Global reference for education system use
         window.oceanForest = this;
         
         this.init();
@@ -60,7 +60,7 @@ class OceanForest {
         this.createOctopus();
         this.createFish();
         
-        // 添加南非海洋生物
+        // Add South African marine life
         this.createCapeFurSeals();
         this.createAfricanPenguins();
         this.createGreatWhiteSharks();
@@ -68,16 +68,16 @@ class OceanForest {
         this.createSeaUrchinFields();
         this.createSeaAnemones();
         
-        // 初始化教育系统
+        // Initialize education system
         this.education = new EducationSystem(this.scene, this.camera, this.canvas);
         this.registerClickableObjects();
         
         this.setupPostProcessing();
         
-        // 初始化动物计数显示
+        // Initialize animal count display
         this.updateAnimalCounts();
         
-        // 设置定期更新动物计数
+        // Set up periodic animal count updates
         setInterval(() => {
             this.updateAnimalCounts();
         }, 2000);
@@ -107,7 +107,7 @@ class OceanForest {
         this.scene = new THREE.Scene();
         this.scene.fog = new THREE.FogExp2(0x006699, 0.02);
         
-        // 背景渐变
+        // Background gradient
         const geometry = new THREE.SphereGeometry(500, 32, 32);
         const material = new THREE.ShaderMaterial({
             uniforms: {
@@ -155,11 +155,11 @@ class OceanForest {
     }
     
     setupLights() {
-        // 环境光
+        // Ambient light
         const ambientLight = new THREE.AmbientLight(0x404080, 0.4);
         this.scene.add(ambientLight);
         
-        // 主光源
+        // Main light source
         const directionalLight = new THREE.DirectionalLight(0x87ceeb, 0.8);
         directionalLight.position.set(50, 100, 50);
         directionalLight.castShadow = true;
@@ -173,7 +173,7 @@ class OceanForest {
         directionalLight.shadow.mapSize.height = 2048;
         this.scene.add(directionalLight);
         
-        // 焦散光效
+        // Caustic light effects
         this.causticLights = [];
         for (let i = 0; i < 8; i++) {
             const light = new THREE.SpotLight(0x4fc3f7, 0.3, 50, Math.PI * 0.3, 0.5);
@@ -190,7 +190,7 @@ class OceanForest {
     }
     
     setupControls() {
-        // 键盘控制
+        // Keyboard controls
         window.addEventListener('keydown', (e) => {
             this.keys[e.code] = true;
             this.audio.enableAudio();
@@ -200,8 +200,8 @@ class OceanForest {
                 const controlInfo = document.querySelector('.info');
                 if (controlInfo) {
                     controlInfo.textContent = this.mouseControl.enabled 
-                        ? '鼠标控制已启用 / Mouse control enabled' 
-                        : '鼠标控制已禁用 / Mouse control disabled';
+                        ? 'Mouse control enabled' 
+                        : 'Mouse control disabled';
                 }
             }
         });
@@ -210,7 +210,7 @@ class OceanForest {
             this.keys[e.code] = false;
         });
         
-        // 鼠标控制
+        // Mouse controls
         window.addEventListener('mousemove', (e) => {
             this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -227,7 +227,7 @@ class OceanForest {
             }
         });
         
-        // 触控控制
+        // Touch controls
         let touchStartX = 0, touchStartY = 0;
         document.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
@@ -251,7 +251,7 @@ class OceanForest {
             }
         });
         
-        // 窗口大小调整
+        // Window resize handling
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
@@ -264,15 +264,15 @@ class OceanForest {
         this.textureLoader = new THREE.TextureLoader();
         
         const tasks = [
-            '加载海带森林... / Loading kelp forest...',
-            '创建章鱼模型... / Creating octopus model...',
-            '生成南非海狗... / Spawning Cape Fur Seals...',
-            '添加非洲企鹅... / Adding African Penguins...',
-            '引入大白鲨... / Introducing Great White Sharks...',
-            '聚集开普鱼群... / Schooling Cape reef fish...',
-            '放置海胆和海葵... / Placing sea urchins and anemones...',
-            '优化海洋生态系统... / Optimizing marine ecosystem...',
-            '准备教育功能... / Preparing educational features...'
+            'Loading kelp forest...',
+            'Creating octopus model...',
+            'Spawning Cape Fur Seals...',
+            'Adding African Penguins...',
+            'Introducing Great White Sharks...',
+            'Schooling Cape reef fish...',
+            'Placing sea urchins and anemones...',
+            'Optimizing marine ecosystem...',
+            'Preparing educational features...'
         ];
         
         if (window.THREE && window.THREE.GLTFLoader) {
@@ -297,15 +297,15 @@ class OceanForest {
     }
     
     registerClickableObjects() {
-        // 注册所有海洋物种为可点击教育对象
+        // Register all marine species as clickable educational objects
         [...this.capeFurSeals, ...this.africanPenguins, ...this.greatWhiteSharks, ...this.capeReefFish]
             .forEach(species => this.education.registerClickableObject(species));
         
-        console.log(`已注册${this.capeFurSeals.length + this.africanPenguins.length + this.greatWhiteSharks.length + this.capeReefFish.length}个可点击海洋物种用于教育`);
+        console.log(`Registered ${this.capeFurSeals.length + this.africanPenguins.length + this.greatWhiteSharks.length + this.capeReefFish.length} clickable marine species for education`);
         this.createFloatingLabels();
     }
     
-    // 创建海洋环境
+    // Create ocean environment
     createOceanFloor() {
         this.oceanEnvironment = new OceanEnvironment(this.scene);
         return this.oceanEnvironment.createOceanFloor();
@@ -321,21 +321,21 @@ class OceanForest {
         return this.kelpForest;
     }
     
-    // 创建章鱼
+    // Create octopus
     createOctopus() {
         this.octopusModel = new OctopusModel(this.scene);
         this.octopus = this.octopusModel.createOctopus();
         return this.octopus;
     }
     
-    // 创建基础鱼类（简单装饰用）
+    // Create basic fish (simple decoration)
     createFish() {
-        // 基础装饰鱼类，主要的鱼类在 createCapeReefFish 中
+        // Basic decorative fish, main fish are in createCapeReefFish
         this.fish = [];
         return this.fish;
     }
     
-    // 创建南非海洋生物
+    // Create South African marine life
     createCapeFurSeals() {
         if (!this.marineAnimals) {
             this.marineAnimals = new MarineAnimals(this.scene);
@@ -369,18 +369,18 @@ class OceanForest {
     }
     
     createSeaUrchinFields() {
-        // 简化的海胆创建，主要逻辑在其他模块
+        // Simplified sea urchin creation, main logic in other modules
         this.seaUrchinFields = [];
         return this.seaUrchinFields;
     }
     
     createSeaAnemones() {
-        // 简化的海葵创建，主要逻辑在其他模块
+        // Simplified sea anemone creation, main logic in other modules
         this.seaAnemones = [];
         return this.seaAnemones;
     }
     
-    // 创建浮动标签
+    // Create floating labels
     createFloatingLabels() {
         const allSpecies = [
             ...this.capeFurSeals,
@@ -393,16 +393,16 @@ class OceanForest {
         this.floatingLabels.createFloatingLabels(allSpecies);
     }
     
-    // 设置后处理
+    // Setup post-processing
     setupPostProcessing() {
         this.renderEngine = new RenderEngine(this.renderer, this.scene, this.camera);
         this.renderEngine.setupPostProcessing();
         
-        // 可选：初始化电影级系统（如果可用）
+        // Optional: Initialize cinematic systems (if available)
         this.initOptionalSystems();
     }
     
-    // 开始渲染循环
+    // Start render loop
     startRenderLoop() {
         if (!this.renderEngine) {
             this.renderEngine = new RenderEngine(this.renderer, this.scene, this.camera);
@@ -410,63 +410,63 @@ class OceanForest {
         this.renderEngine.startRenderLoop(this);
     }
     
-    // 初始化可选的高级系统
+    // Initialize optional advanced systems
     initOptionalSystems() {
         const moduleManager = window.moduleManager;
         if (!moduleManager) return;
         
-        // 初始化电影级动画系统
+        // Initialize cinematic animation system
         const CinematicAnimationSystem = moduleManager.getModule('CinematicAnimationSystem');
         if (CinematicAnimationSystem) {
             try {
                 this.cinematicAnimation = new CinematicAnimationSystem(this.scene, this.camera, this.renderer);
-                console.log('✅ 电影级动画系统已启用');
+                console.log('✅ Cinematic animation system enabled');
             } catch (error) {
-                console.warn('⚠️ 电影级动画系统初始化失败:', error);
+                console.warn('⚠️ Cinematic animation system initialization failed:', error);
             }
         }
         
-        // 初始化高级粒子系统
+        // Initialize advanced particle system
         const AdvancedParticleSystem = moduleManager.getModule('AdvancedParticleSystem');
         if (AdvancedParticleSystem) {
             try {
                 this.advancedParticles = new AdvancedParticleSystem(this.scene, this.camera);
-                console.log('✅ 高级粒子系统已启用');
+                console.log('✅ Advanced particle system enabled');
             } catch (error) {
-                console.warn('⚠️ 高级粒子系统初始化失败:', error);
+                console.warn('⚠️ Advanced particle system initialization failed:', error);
             }
         }
         
-        // 初始化海洋生物行为系统
+        // Initialize marine life behavior system
         const MarineLifeBehavior = moduleManager.getModule('MarineLifeBehavior');
         if (MarineLifeBehavior) {
             try {
                 this.marineLifeBehavior = new MarineLifeBehavior();
                 this.setupMarineLifeBehavior();
-                console.log('✅ 海洋生物行为系统已启用');
+                console.log('✅ Marine life behavior system enabled');
             } catch (error) {
-                console.warn('⚠️ 海洋生物行为系统初始化失败:', error);
+                console.warn('⚠️ Marine life behavior system initialization failed:', error);
             }
         }
         
-        // 初始化电影级摄像机系统
+        // Initialize cinematic camera system
         const CinematicCameraSystem = moduleManager.getModule('CinematicCameraSystem');
         if (CinematicCameraSystem) {
             try {
                 this.cinematicCamera = new CinematicCameraSystem(this.camera, this.scene);
                 this.cinematicCamera.setTarget(this.octopusPosition);
-                console.log('✅ 电影级摄像机系统已启用');
+                console.log('✅ Cinematic camera system enabled');
             } catch (error) {
-                console.warn('⚠️ 电影级摄像机系统初始化失败:', error);
+                console.warn('⚠️ Cinematic camera system initialization failed:', error);
             }
         }
     }
     
-    // 设置海洋生物行为
+    // Setup marine life behavior
     setupMarineLifeBehavior() {
         if (!this.marineLifeBehavior) return;
         
-        // 注册鱼类行为
+        // Register fish behavior
         if (this.capeReefFish) {
             this.capeReefFish.forEach(fish => {
                 const species = fish.userData.species ? fish.userData.species.englishName : 'Unknown';
@@ -474,14 +474,14 @@ class OceanForest {
             });
         }
         
-        // 注册鲨鱼行为
+        // Register shark behavior
         if (this.greatWhiteSharks) {
             this.greatWhiteSharks.forEach(shark => {
                 this.marineLifeBehavior.registerMarineLife(shark, 'hunting', 'Great White Shark');
             });
         }
         
-        // 注册海豹行为
+        // Register seal behavior
         if (this.capeFurSeals) {
             this.capeFurSeals.forEach(seal => {
                 this.marineLifeBehavior.registerMarineLife(seal, 'territorial', 'Cape Fur Seal');
@@ -489,7 +489,7 @@ class OceanForest {
         }
     }
     
-    // 更新UI显示的动物计数
+    // Update UI display of animal counts
     updateAnimalCounts() {
         try {
             const kelpCount = (this.kelp && this.kelp.length) || 0;
@@ -499,7 +499,7 @@ class OceanForest {
             const penguinCount = (this.africanPenguins && this.africanPenguins.length) || 0;
             const sharkCount = (this.greatWhiteSharks && this.greatWhiteSharks.length) || 0;
             
-            // 安全更新DOM元素
+            // Safely update DOM elements
             const updateElement = (id, value) => {
                 const element = document.getElementById(id);
                 if (element) element.textContent = value;
@@ -512,11 +512,11 @@ class OceanForest {
             updateElement('shark-count', sharkCount);
             
         } catch (error) {
-            console.warn('⚠️ 动物计数更新失败:', error);
+            console.warn('⚠️ Animal count update failed:', error);
         }
     }
 }
-// 注册主应用模块
+// Register main application module
 if (window.moduleManager) {
     window.moduleManager.registerModule('OceanForest', OceanForest);
 }

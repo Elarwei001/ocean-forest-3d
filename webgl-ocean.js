@@ -197,8 +197,8 @@ class OceanForest {
                 const controlInfo = document.querySelector('.info');
                 if (controlInfo) {
                     controlInfo.textContent = this.mouseControl.enabled 
-                        ? '鼠标控制已启用 / Mouse control enabled' 
-                        : '鼠标控制已禁用 / Mouse control disabled';
+                        ? 'Mouse control enabled' 
+                        : 'Mouse control disabled';
                 }
             }
         });
@@ -268,15 +268,15 @@ class OceanForest {
         
         // Enhanced loading progress with better marine models preparation
         const tasks = [
-            '加载海带森林... / Loading kelp forest...',
-            '创建章鱼模型... / Creating octopus model...',
-            '生成南非海狗... / Spawning Cape Fur Seals...',
-            '添加非洲企鹅... / Adding African Penguins...',
-            '引入大白鲨... / Introducing Great White Sharks...',
-            '聚集开普鱼群... / Schooling Cape reef fish...',
-            '放置海胆和海葵... / Placing sea urchins and anemones...',
-            '优化海洋生态系统... / Optimizing marine ecosystem...',
-            '准备教育功能... / Preparing educational features...'
+            'Loading kelp forest...',
+            'Creating octopus model...',
+            'Spawning Cape Fur Seals...',
+            'Adding African Penguins...',
+            'Introducing Great White Sharks...',
+            'Schooling Cape reef fish...',
+            'Placing sea urchins and anemones...',
+            'Optimizing marine ecosystem...',
+            'Preparing educational features...'
         ];
         
         // Try to initialize GLTF loader for potential 3D model loading
@@ -538,7 +538,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            fish.userData.speed = 0.03 + Math.random() * 0.02; // 大幅降低基础鱼类速度
+            fish.userData.speed = 0.03 + Math.random() * 0.02; // Significantly reduce base fish speed
             fish.userData.turnRate = 0.01 + Math.random() * 0.02;
             
             this.fish.push(fish);
@@ -800,88 +800,88 @@ class OceanForest {
     updateFish(deltaTime) {
         this.fish.forEach((fish, fishIndex) => {
             if (!fish.userData.swimData) {
-                // 初始化自然游泳数据
+                // Initialize natural swimming data
                 fish.userData.swimData = {
-                    baseSpeed: 0.008 + Math.random() * 0.007, // 极慢速度，仿照章鱼慢速移动
+                    baseSpeed: 0.008 + Math.random() * 0.007, // Very slow speed, following octopus slow movement
                     currentSpeed: 0,
                     targetDirection: fish.userData.direction.clone(),
                     currentDirection: fish.userData.direction.clone(),
                     swimPhase: Math.random() * Math.PI * 2,
                     lastDirectionChange: 0,
-                    directionChangeInterval: 4000 + Math.random() * 6000 // 4-10秒改变方向
+                    directionChangeInterval: 4000 + Math.random() * 6000 // Change direction every 4-10 seconds
                 };
             }
             
             const swimData = fish.userData.swimData;
             const time = performance.now();
             
-            // 检查是否需要改变游泳方向
+            // Check if swimming direction needs to change
             if (time - swimData.lastDirectionChange > swimData.directionChangeInterval) {
                 swimData.lastDirectionChange = time;
                 swimData.directionChangeInterval = 4000 + Math.random() * 6000;
                 
-                // 生成新的目标方向（极其平滑的转向）
+                // Generate new target direction (extremely smooth turning)
                 const currentAngle = Math.atan2(swimData.currentDirection.z, swimData.currentDirection.x);
-                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.4; // 最大36度转向
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.4; // Maximum 36 degree turn
                 const newAngle = currentAngle + turnAngle;
                 
                 swimData.targetDirection.set(
                     Math.cos(newAngle),
-                    (Math.random() - 0.5) * 0.2, // 轻微的上下游动
+                    (Math.random() - 0.5) * 0.2, // Slight up and down swimming movement
                     Math.sin(newAngle)
                 ).normalize();
             }
             
-            // 极其平滑的方向插值
+            // Extremely smooth direction interpolation
             swimData.currentDirection.lerp(swimData.targetDirection, 0.01);
             swimData.currentDirection.normalize();
             
-            // 简化的避让行为
+            // Simplified avoidance behavior
             const distanceToOctopus = fish.position.distanceTo(this.octopusPosition);
             let targetSpeed = swimData.baseSpeed;
             
             if (distanceToOctopus < 5) {
-                // 极其轻微的避让
+                // Extremely subtle avoidance
                 const avoidVector = fish.position.clone().sub(this.octopusPosition).normalize();
                 swimData.targetDirection.lerp(avoidVector, 0.015);
-                targetSpeed = swimData.baseSpeed * 1.3; // 轻微加速
+                targetSpeed = swimData.baseSpeed * 1.3; // Slight acceleration
             }
             
-            // 速度平滑变化
+            // Smooth speed changes
             swimData.currentSpeed = THREE.MathUtils.lerp(
                 swimData.currentSpeed, 
                 targetSpeed, 
                 0.03
             );
             
-            // 简化的游泳节奏
+            // Simplified swimming rhythm
             swimData.swimPhase += deltaTime * 1.5;
             const rhythmFactor = 0.7 + Math.sin(swimData.swimPhase) * 0.3;
             const finalSpeed = swimData.currentSpeed * rhythmFactor;
             
-            // 慢速移动
+            // Slow movement
             const moveVector = swimData.currentDirection.clone().multiplyScalar(finalSpeed);
             fish.position.add(moveVector);
             
-            // 平滑朝向移动方向
+            // Smooth orientation toward movement direction
             const lookTarget = fish.position.clone().add(swimData.currentDirection);
             fish.lookAt(lookTarget);
             
-            // 边界控制
+            // Boundary control
             if (fish.position.length() > 60) {
                 const returnVector = fish.position.clone().negate().normalize();
                 swimData.targetDirection.lerp(returnVector, 0.05);
             }
             
-            // 简化的尾鳍动画
+            // Simplified tail fin animation
             const tail = fish.children[1];
             if (tail) {
-                const swimTime = time * 0.004; // 很慢的摆动
+                const swimTime = time * 0.004; // Very slow swaying
                 const swimIntensity = finalSpeed * 15;
                 tail.rotation.y = Math.sin(swimTime + fishIndex) * 0.3 * swimIntensity;
             }
             
-            // 更新原始数据保持兼容性
+            // Update original data to maintain compatibility
             fish.userData.direction.copy(swimData.currentDirection);
             fish.userData.speed = finalSpeed;
         });
@@ -907,7 +907,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            seal.userData.speed = 0.015 + Math.random() * 0.005; // 极大降低海豹速度，仿照章鱼慢速
+            seal.userData.speed = 0.015 + Math.random() * 0.005; // Greatly reduce seal speed, following octopus slow speed
             seal.userData.agility = 0.02;
             seal.userData.breathTimer = Math.random() * 20; // Surface breathing
             seal.userData.playfulTimer = Math.random() * 10; // Playful behavior
@@ -920,13 +920,13 @@ class OceanForest {
     createSingleCapeFurSeal() {
         const group = new THREE.Group();
         
-        // 更逼真的身体 - 流线型设计
+        // More realistic body - streamlined design
         const bodyGeometry = new THREE.SphereGeometry(1, 16, 12);
-        bodyGeometry.scale(2.8, 1.1, 1.3); // 更长更流线型
+        bodyGeometry.scale(2.8, 1.1, 1.3); // Longer and more streamlined
         
-        // 身体渐变色彩 - 背部深色，腹部浅色
+        // Body gradient colors - dark back, light belly
         const bodyMaterial = new THREE.MeshPhongMaterial({
-            color: 0x5d4037, // 温暖的棕色
+            color: 0x5d4037, // Warm brown color
             shininess: 80,
             specular: 0x333333
         });
@@ -934,22 +934,22 @@ class OceanForest {
         body.castShadow = true;
         group.add(body);
         
-        // 腹部浅色区域
+        // Light-colored belly area
         const bellyGeometry = new THREE.SphereGeometry(0.85, 12, 8);
         bellyGeometry.scale(2.5, 0.8, 1.1);
         const bellyMaterial = new THREE.MeshPhongMaterial({
-            color: 0x8d6e63, // 浅棕色腹部
+            color: 0x8d6e63, // Light brown belly
             shininess: 90
         });
         const belly = new THREE.Mesh(bellyGeometry, bellyMaterial);
         belly.position.set(0, -0.3, 0);
         group.add(belly);
         
-        // 更逼真的头部
+        // More realistic head
         const headGeometry = new THREE.SphereGeometry(0.9, 16, 12);
         headGeometry.scale(1.3, 1.1, 1.2);
         const headMaterial = new THREE.MeshPhongMaterial({
-            color: 0x6d4c41, // 头部颜色
+            color: 0x6d4c41, // Head color
             shininess: 70
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
@@ -957,7 +957,7 @@ class OceanForest {
         head.castShadow = true;
         group.add(head);
         
-        // 大眼睛 - 儿童友好
+        // Large eyes - child-friendly
         const eyeGeometry = new THREE.SphereGeometry(0.15, 12, 8);
         const eyeMaterial = new THREE.MeshPhongMaterial({
             color: 0x000000,
@@ -972,7 +972,7 @@ class OceanForest {
         eyeR.position.set(2.8, 0.5, -0.3);
         group.add(eyeR);
         
-        // 可爱的鼻子
+        // Cute nose
         const noseGeometry = new THREE.SphereGeometry(0.08, 8, 6);
         const noseMaterial = new THREE.MeshPhongMaterial({
             color: 0x2e2e2e,
@@ -982,7 +982,7 @@ class OceanForest {
         nose.position.set(3.1, 0.3, 0);
         group.add(nose);
         
-        // 胡须
+        // Whiskers
         const whiskerMaterial = new THREE.MeshPhongMaterial({
             color: 0x424242,
             transparent: true,
@@ -1000,11 +1000,11 @@ class OceanForest {
             group.add(whisker);
         }
         
-        // 更逼真的前鳍 - 椭圆形
+        // More realistic front flippers - oval shape
         const frontFlipperGeometry = new THREE.SphereGeometry(0.6, 10, 8);
         frontFlipperGeometry.scale(2.2, 0.25, 1.1);
         const flipperMaterial = new THREE.MeshPhongMaterial({
-            color: 0x4a4a4a, // 深色鳍
+            color: 0x4a4a4a, // Dark colored fins
             shininess: 60
         });
         
@@ -1020,7 +1020,7 @@ class OceanForest {
         frontFlipperR.rotation.y = -Math.PI / 12;
         group.add(frontFlipperR);
         
-        // 后鳍 - 更像真实的尾鳍
+        // Rear fins - more like real tail fins
         const backFlipperGeometry = new THREE.SphereGeometry(0.5, 8, 6);
         backFlipperGeometry.scale(1.8, 0.2, 1);
         
@@ -1034,7 +1034,7 @@ class OceanForest {
         backFlipperR.rotation.y = -Math.PI / 5;
         group.add(backFlipperR);
         
-        // 背鳍
+        // Dorsal fin
         const dorsalFinGeometry = new THREE.ConeGeometry(0.3, 0.6, 6);
         const dorsalFinMaterial = new THREE.MeshPhongMaterial({
             color: 0x5d4037,
@@ -1045,7 +1045,7 @@ class OceanForest {
         dorsalFin.rotation.x = Math.PI;
         group.add(dorsalFin);
         
-        // 存储鳍的引用用于动画
+        // Store fin references for animation
         group.userData.flippers = {
             frontL: frontFlipperL,
             frontR: frontFlipperR,
@@ -1053,17 +1053,17 @@ class OceanForest {
             backR: backFlipperR
         };
         
-        // 教育标签数据
+        // Educational label data
         group.userData.species = {
-            name: "南非海狗",
+            name: "Cape Fur Seal",
             englishName: "Cape Fur Seal",
             photo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMDA0NDY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTAwIiBmaWxsPSIjODdDRUVCIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkNhcGUgRnVyIFNlYWw8L3RleHQ+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjEyMCIgcj0iMjAiIGZpbGw9IiM2NjVBNDgiLz4KPC9zdmc+",
             facts: [
-                "体长可达2.5米 / Body length up to 2.5 meters",
-                "擅长游泳和潜水 / Excellent swimmers and divers", 
-                "群居动物 / Social animals living in colonies",
-                "以鱼类为食 / Feed primarily on fish",
-                "寿命可达25年 / Lifespan up to 25 years"
+                "Body length up to 2.5 meters",
+                "Excellent swimmers and divers", 
+                "Social animals living in colonies",
+                "Feed primarily on fish",
+                "Lifespan up to 25 years"
             ]
         };
         
@@ -1089,7 +1089,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            penguin.userData.speed = 0.02 + Math.random() * 0.01; // 极大降低企鹅速度，仿照章鱼慢速
+            penguin.userData.speed = 0.02 + Math.random() * 0.01; // Greatly reduce penguin speed, following octopus slow speed
             penguin.userData.diveTimer = Math.random() * 15;
             penguin.userData.agility = 0.03;
             
@@ -1101,13 +1101,13 @@ class OceanForest {
     createSingleAfricanPenguin() {
         const group = new THREE.Group();
         
-        // 更逼真的身体 - 梭形流线型
+        // More realistic body - torpedo-shaped streamlined
         const bodyGeometry = new THREE.SphereGeometry(0.7, 16, 12);
         bodyGeometry.scale(1.6, 1.4, 1.1);
         
-        // 黑色背部
+        // Black back
         const bodyMaterial = new THREE.MeshPhongMaterial({
-            color: 0x1a1a1a, // 深黑色
+            color: 0x1a1a1a, // Deep black
             shininess: 90,
             specular: 0x444444
         });
@@ -1115,11 +1115,11 @@ class OceanForest {
         body.castShadow = true;
         group.add(body);
         
-        // 白色腹部 - 更大更明显
+        // White belly - larger and more prominent
         const bellyGeometry = new THREE.SphereGeometry(0.6, 12, 10);
         bellyGeometry.scale(1.3, 1.2, 0.9);
         const bellyMaterial = new THREE.MeshPhongMaterial({
-            color: 0xffffff, // 纯白色
+            color: 0xffffff, // Pure white
             shininess: 100,
             specular: 0x222222
         });
@@ -1127,11 +1127,11 @@ class OceanForest {
         belly.position.set(0.3, -0.1, 0);
         group.add(belly);
         
-        // 头部 - 圆润可爱
+        // Head - round and cute
         const headGeometry = new THREE.SphereGeometry(0.45, 16, 12);
         headGeometry.scale(1.2, 1.1, 1.1);
         const headMaterial = new THREE.MeshPhongMaterial({
-            color: 0x0d0d0d, // 头部黑色
+            color: 0x0d0d0d, // Head black color
             shininess: 85
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
@@ -1139,7 +1139,7 @@ class OceanForest {
         head.castShadow = true;
         group.add(head);
         
-        // 白色面部区域
+        // White facial area
         const faceGeometry = new THREE.SphereGeometry(0.35, 10, 8);
         faceGeometry.scale(0.8, 0.9, 0.8);
         const faceMaterial = new THREE.MeshPhongMaterial({
@@ -1150,7 +1150,7 @@ class OceanForest {
         face.position.set(1.3, 0.3, 0);
         group.add(face);
         
-        // 大眼睛 - 儿童友好设计
+        // Large eyes - child-friendly design
         const eyeGeometry = new THREE.SphereGeometry(0.12, 12, 8);
         const eyeWhiteMaterial = new THREE.MeshPhongMaterial({
             color: 0xffffff,
@@ -1165,7 +1165,7 @@ class OceanForest {
         eyeR.position.set(1.45, 0.45, -0.2);
         group.add(eyeR);
         
-        // 黑色瞳孔
+        // Black pupils
         const pupilGeometry = new THREE.SphereGeometry(0.06, 8, 6);
         const pupilMaterial = new THREE.MeshPhongMaterial({
             color: 0x000000,
@@ -1180,10 +1180,10 @@ class OceanForest {
         pupilR.position.set(1.52, 0.48, -0.2);
         group.add(pupilR);
         
-        // 橙色喙 - 非洲企鹅特征
+        // Orange beak - African penguin characteristic
         const beakGeometry = new THREE.ConeGeometry(0.08, 0.35, 6);
         const beakMaterial = new THREE.MeshPhongMaterial({
-            color: 0xff8c00, // 橙色喙
+            color: 0xff8c00, // Orange beak
             shininess: 70
         });
         const beak = new THREE.Mesh(beakGeometry, beakMaterial);
@@ -1191,7 +1191,7 @@ class OceanForest {
         beak.rotation.z = Math.PI / 2;
         group.add(beak);
         
-        // 非洲企鹅特有的黑色带纹
+        // Black band pattern unique to African penguins
         const bandGeometry = new THREE.TorusGeometry(0.8, 0.08, 6, 16);
         const bandMaterial = new THREE.MeshPhongMaterial({
             color: 0x000000,
@@ -1203,11 +1203,11 @@ class OceanForest {
         band.scale.set(1, 0.6, 1);
         group.add(band);
         
-        // 翅膀/鳍状肢 - 更逼真的形状
+        // Wings/flippers - more realistic shape
         const flipperGeometry = new THREE.SphereGeometry(0.45, 12, 8);
         flipperGeometry.scale(2.2, 0.3, 1);
         const flipperMaterial = new THREE.MeshPhongMaterial({
-            color: 0x0d0d0d, // 黑色翅膀
+            color: 0x0d0d0d, // Black wings
             shininess: 85
         });
         
@@ -1223,7 +1223,7 @@ class OceanForest {
         flipperR.rotation.z = -Math.PI / 12;
         group.add(flipperR);
         
-        // 翅膀边缘的白色条纹
+        // White stripes on wing edges
         const stripeGeometry = new THREE.SphereGeometry(0.4, 8, 6);
         stripeGeometry.scale(1.8, 0.1, 0.8);
         const stripeMaterial = new THREE.MeshPhongMaterial({
@@ -1241,11 +1241,11 @@ class OceanForest {
         stripeR.rotation.y = -Math.PI / 10;
         group.add(stripeR);
         
-        // 橙色脚蹼
+        // Orange webbed feet
         const feetGeometry = new THREE.SphereGeometry(0.15, 8, 6);
         feetGeometry.scale(1.2, 0.3, 1.5);
         const feetMaterial = new THREE.MeshPhongMaterial({
-            color: 0xff8c00, // 橙色脚
+            color: 0xff8c00, // Orange feet
             shininess: 60
         });
         
@@ -1257,20 +1257,20 @@ class OceanForest {
         footR.position.set(0.8, -1, -0.3);
         group.add(footR);
         
-        // 存储翅膀引用
+        // Store wing references
         group.userData.flippers = { left: flipperL, right: flipperR };
         
-        // 教育标签数据
+        // Educational label data
         group.userData.species = {
-            name: "非洲企鹅",
+            name: "African Penguin",
             englishName: "African Penguin",
             photo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMDA0NDY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iOTAiIGZpbGw9IiM4N0NFRUIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCI+QWZyaWNhbiBQZW5ndWluPC90ZXh0Pgo8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iMTMwIiByeD0iMjUiIHJ5PSIzNSIgZmlsbD0iIzMzMzMzMyIvPgo8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iMTM1IiByeD0iMTUiIHJ5PSIyNSIgZmlsbD0iI0ZGRkZGRiIvPgo8Y2lyY2xlIGN4PSIxNDUiIGN5PSIxMjAiIHI9IjMiIGZpbGw9IiMwMDAwMDAiLz4KPGJ1cmNsZSBjeD0iMTU1IiBjeT0iMTIwIiByPSIzIiBmaWxsPSIjMDAwMDAwIi8+CjxyZWN0IHg9IjE0NyIgeT0iMTI1IiB3aWR0aD0iNiIgaGVpZ2h0PSI0IiBmaWxsPSIjRkY4QzAwIi8+Cjwvc3ZnPgo=",
             facts: [
-                "又称斑嘴环企鹅 / Also known as Black-footed Penguin",
-                "游泳速度可达20公里/小时 / Swimming speed up to 20 km/h",
-                "能潜水到130米深 / Can dive to depths of 130 meters",
-                "以小鱼和乌贼为食 / Feed on small fish and squid",
-                "濒危物种，需要保护 / Endangered species requiring protection"
+                "Also known as Black-footed Penguin",
+                "Swimming speed up to 20 km/h",
+                "Can dive to depths of 130 meters",
+                "Feed on small fish and squid",
+                "Endangered species requiring protection"
             ]
         };
         
@@ -1299,7 +1299,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            shark.userData.speed = 0.015 + Math.random() * 0.005; // 极大降低鲨鱼速度，仿照章鱼慢速
+            shark.userData.speed = 0.015 + Math.random() * 0.005; // Greatly reduce shark speed, following octopus slow speed
             shark.userData.huntingMode = false;
             shark.userData.agility = 0.01;
             shark.userData.patrolRadius = distance;
@@ -1313,13 +1313,13 @@ class OceanForest {
     createSingleGreatWhiteShark() {
         const group = new THREE.Group();
         
-        // 更逼真的鲨鱼身体 - 完美流线型
+        // More realistic shark body - perfect streamlined
         const bodyGeometry = new THREE.SphereGeometry(1.3, 20, 16);
-        bodyGeometry.scale(4.5, 1.3, 1.6); // 完美的鲨鱼比例
+        bodyGeometry.scale(4.5, 1.3, 1.6); // Perfect shark proportions
         
-        // 背部深色
+        // Dark colored back
         const bodyMaterial = new THREE.MeshPhongMaterial({
-            color: 0x4a5568, // 深蓝灰色背部
+            color: 0x4a5568, // Deep blue-gray back
             shininess: 85,
             specular: 0x666666
         });
@@ -1327,22 +1327,22 @@ class OceanForest {
         body.castShadow = true;
         group.add(body);
         
-        // 白色腹部 - 鲨鱼特有的腹部着色
+        // White belly - shark's characteristic belly coloring
         const bellyGeometry = new THREE.SphereGeometry(1.1, 16, 12);
         bellyGeometry.scale(4.2, 1, 1.4);
         const bellyMaterial = new THREE.MeshPhongMaterial({
-            color: 0xf7fafc, // 白色腹部
+            color: 0xf7fafc, // White belly
             shininess: 90
         });
         const belly = new THREE.Mesh(bellyGeometry, bellyMaterial);
         belly.position.set(0, -0.4, 0);
         group.add(belly);
         
-        // 更逼真的头部/鼻部
+        // More realistic head/snout
         const headGeometry = new THREE.SphereGeometry(0.9, 16, 12);
         headGeometry.scale(1.8, 1.1, 1.3);
         const headMaterial = new THREE.MeshPhongMaterial({
-            color: 0x2d3748, // 深色头部
+            color: 0x2d3748, // Dark colored head
             shininess: 80
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
@@ -1350,10 +1350,10 @@ class OceanForest {
         head.castShadow = true;
         group.add(head);
         
-        // 鲨鱼眼睛 - 深色但不凶恶
+        // Shark eyes - dark but not menacing
         const eyeGeometry = new THREE.SphereGeometry(0.2, 12, 8);
         const eyeMaterial = new THREE.MeshPhongMaterial({
-            color: 0x1a202c, // 深色眼睛
+            color: 0x1a202c, // Dark colored eyes
             shininess: 100
         });
         
@@ -1365,7 +1365,7 @@ class OceanForest {
         eyeR.position.set(5.5, 0.6, -0.5);
         group.add(eyeR);
         
-        // 鼻部
+        // Snout
         const snoutGeometry = new THREE.ConeGeometry(0.6, 1.5, 12);
         const snoutMaterial = new THREE.MeshPhongMaterial({
             color: 0x4a5568,
@@ -1376,7 +1376,7 @@ class OceanForest {
         snout.rotation.z = -Math.PI / 2;
         group.add(snout);
         
-        // 经典的背鳍 - 三角形
+        // Classic dorsal fin - triangular
         const dorsalGeometry = new THREE.ConeGeometry(1, 2.5, 8);
         const finMaterial = new THREE.MeshPhongMaterial({
             color: 0x2d3748, // 深色鳍
@@ -1385,17 +1385,17 @@ class OceanForest {
         const dorsalFin = new THREE.Mesh(dorsalGeometry, finMaterial);
         dorsalFin.position.set(0.5, 2.2, 0);
         dorsalFin.rotation.x = Math.PI;
-        dorsalFin.rotation.z = -Math.PI / 24; // 轻微向后倾斜
+        dorsalFin.rotation.z = -Math.PI / 24; // Slight backward tilt
         group.add(dorsalFin);
         
-        // 第二背鳍（小一些）
+        // Second dorsal fin (smaller)
         const secondDorsalGeometry = new THREE.ConeGeometry(0.5, 1.2, 6);
         const secondDorsal = new THREE.Mesh(secondDorsalGeometry, finMaterial);
         secondDorsal.position.set(-2.5, 1.5, 0);
         secondDorsal.rotation.x = Math.PI;
         group.add(secondDorsal);
         
-        // 尾鳍 - 不对称设计（上叶更大）
+        // Tail fin - asymmetric design (upper lobe larger)
         const tailUpperGeometry = new THREE.ConeGeometry(1.5, 3.5, 8);
         const tailUpper = new THREE.Mesh(tailUpperGeometry, finMaterial);
         tailUpper.position.set(-5.8, 1, 0);
@@ -1410,7 +1410,7 @@ class OceanForest {
         tailLower.rotation.x = -Math.PI / 12;
         group.add(tailLower);
         
-        // 胸鳍 - 长而尖的三角形
+        // Pectoral fins - long and pointed triangular
         const pectoralGeometry = new THREE.ConeGeometry(0.8, 2.5, 8);
         
         const pectoralL = new THREE.Mesh(pectoralGeometry, finMaterial);
@@ -1427,7 +1427,7 @@ class OceanForest {
         pectoralR.rotation.x = -Math.PI / 12;
         group.add(pectoralR);
         
-        // 腹鳍
+        // Ventral fins
         const ventralGeometry = new THREE.ConeGeometry(0.4, 1, 6);
         
         const ventralL = new THREE.Mesh(ventralGeometry, finMaterial);
@@ -1442,13 +1442,13 @@ class OceanForest {
         ventralR.rotation.z = -Math.PI / 8;
         group.add(ventralR);
         
-        // 臀鳍
+        // Anal fin
         const analFin = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.8, 6), finMaterial);
         analFin.position.set(-2.8, -1.1, 0);
         analFin.rotation.x = Math.PI;
         group.add(analFin);
         
-        // 鳃裂 - 鲨鱼特征
+        // Gill slits - shark characteristic
         const gillMaterial = new THREE.MeshPhongMaterial({
             color: 0x1a202c,
             transparent: true,
@@ -1463,14 +1463,14 @@ class OceanForest {
             gill.rotation.z = Math.PI / 12;
             group.add(gill);
             
-            // 另一侧的鳃
+            // Gills on the other side
             const gillR = gill.clone();
             gillR.position.z = -1.4;
             gillR.rotation.y = -Math.PI / 2;
             group.add(gillR);
         }
         
-        // 存储鳍的引用用于动画
+        // Store fin references for animation
         group.userData.fins = {
             tail: tailUpper,
             tailLower: tailLower,
@@ -1479,18 +1479,18 @@ class OceanForest {
             dorsal: dorsalFin
         };
         
-        // 教育标签数据
+        // Educational label data
         group.userData.species = {
-            name: "大白鲨",
+            name: "Great White Shark",
             englishName: "Great White Shark",
             photo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMDA0NDY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMzAiIGZpbGw9IiM4N0NFRUIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCI+R3JlYXQgV2hpdGUgU2hhcms8L3RleHQ+CjxlbGxpcHNlIGN4PSIxNTAiIGN5PSIxMDAiIHJ4PSI4MCIgcnk9IjMwIiBmaWxsPSIjNzc3Nzc3Ii8+CjxlbGxpcHNlIGN4PSIxNTAiIGN5PSIxMTAiIHJ4PSI2MCIgcnk9IjIwIiBmaWxsPSIjRkZGRkZGIi8+Cjx0cmlhbmdsZSBjeD0iMjMwIiBjeT0iMTAwIiByPSIyMCIgZmlsbD0iIzc3Nzc3NyIvPgo8Y2lyY2xlIGN4PSIxMzAiIGN5PSI5MCIgcj0iNSIgZmlsbD0iIzAwMDAwMCIvPgo8cGF0aCBkPSJNMTIwIDEwNSBMMTgwIDEwNSBMMTgwIDExNSBMMTIwIDExNSBaIiBmaWxsPSIjMzMzMzMzIi8+Cjwvc3ZnPgo=",
             facts: [
-                "海洋顶级掠食者 / Top ocean predator",
-                "体长可达6米 / Body length up to 6 meters",
-                "拥有300颗牙齿 / Has about 300 teeth",
-                "游泳速度可达56公里/小时 / Swimming speed up to 56 km/h",
-                "对海洋生态平衡很重要 / Important for marine ecosystem balance",
-                "实际上很少攻击人类 / Actually rarely attacks humans"
+                "Top ocean predator",
+                "Body length up to 6 meters",
+                "Has about 300 teeth",
+                "Swimming speed up to 56 km/h",
+                "Important for marine ecosystem balance",
+                "Actually rarely attacks humans"
             ]
         };
         
@@ -1500,7 +1500,7 @@ class OceanForest {
     createCapeReefFish() {
         const fishTypes = [
             { 
-                name: '黄尾鱼', 
+                name: 'Yellowtail', 
                 englishName: 'Yellowtail', 
                 primaryColor: 0xFFD700, 
                 secondaryColor: 0xFFA500,
@@ -1509,7 +1509,7 @@ class OceanForest {
                 pattern: 'stripes'
             },
             { 
-                name: '罗马鱼', 
+                name: 'Roman', 
                 englishName: 'Roman', 
                 primaryColor: 0xFF6347, 
                 secondaryColor: 0xFFB6C1,
@@ -1518,7 +1518,7 @@ class OceanForest {
                 pattern: 'spots'
             },
             { 
-                name: '霍顿托鱼', 
+                name: 'Hottentot', 
                 englishName: 'Hottentot', 
                 primaryColor: 0x4169E1, 
                 secondaryColor: 0x87CEEB,
@@ -1527,7 +1527,7 @@ class OceanForest {
                 pattern: 'bands'
             },
             { 
-                name: '石头鱼', 
+                name: 'Steentjie', 
                 englishName: 'Steentjie', 
                 primaryColor: 0x32CD32, 
                 secondaryColor: 0x98FB98,
@@ -1536,7 +1536,7 @@ class OceanForest {
                 pattern: 'gradient'
             },
             {
-                name: '天使鱼',
+                name: 'Angelfish',
                 englishName: 'Angelfish',
                 primaryColor: 0xFF69B4,
                 secondaryColor: 0xFFB6C1,
@@ -1545,7 +1545,7 @@ class OceanForest {
                 pattern: 'stripes'
             },
             {
-                name: '蝴蝶鱼',
+                name: 'Butterflyfish',
                 englishName: 'Butterflyfish',
                 primaryColor: 0xFFFF00,
                 secondaryColor: 0xFFFFE0,
@@ -1578,7 +1578,7 @@ class OceanForest {
                 Math.random() - 0.5
             ).normalize();
             
-            fish.userData.speed = 0.02 + Math.random() * 0.03; // 大幅降低珊瑚鱼速度
+            fish.userData.speed = 0.02 + Math.random() * 0.03; // Significantly reduce coral fish speed
             fish.userData.schoolCenter = kelpPosition.clone();
             fish.userData.agility = 0.04;
             fish.userData.type = fishType.name;
@@ -1592,23 +1592,23 @@ class OceanForest {
         const group = new THREE.Group();
         const size = fishType.size;
         
-        // 更逼真的鱼身 - 根据鱼类调整形状
+        // More realistic fish body - adjust shape based on fish type
         let bodyGeometry;
         if (fishType.pattern === 'eyespot') {
-            // 蝴蝶鱼 - 更高更圆
+            // Butterflyfish - taller and rounder
             bodyGeometry = new THREE.SphereGeometry(size, 12, 10);
             bodyGeometry.scale(1.2, 1.4, 1);
         } else if (fishType.englishName === 'Angelfish') {
-            // 天使鱼 - 三角形身体
+            // Angelfish - triangular body
             bodyGeometry = new THREE.SphereGeometry(size, 12, 10);
             bodyGeometry.scale(1.3, 1.6, 0.8);
         } else {
-            // 标准鱼形
+            // Standard fish shape
             bodyGeometry = new THREE.SphereGeometry(size, 12, 10);
             bodyGeometry.scale(1.6, 1.1, 1);
         }
         
-        // 主体颜色
+        // Primary color
         const bodyMaterial = new THREE.MeshPhongMaterial({
             color: fishType.primaryColor,
             shininess: 90,
@@ -1618,16 +1618,16 @@ class OceanForest {
         body.castShadow = true;
         group.add(body);
         
-        // 添加图案
+        // Add patterns
         this.addFishPattern(group, fishType, size);
         
-        // 更逼真的尾鳍
+        // More realistic tail fin
         let tailGeometry;
         if (fishType.englishName === 'Angelfish') {
-            // 天使鱼的扇形尾鳍
+            // Angelfish fan-shaped tail fin
             tailGeometry = new THREE.ConeGeometry(size * 0.6, size * 1.2, 8);
         } else {
-            // 标准叉形尾鳍
+            // Standard forked tail fin
             tailGeometry = new THREE.ConeGeometry(size * 0.5, size * 1, 6);
         }
         
@@ -1642,7 +1642,7 @@ class OceanForest {
         tail.rotation.z = Math.PI / 2;
         group.add(tail);
         
-        // 背鳍
+        // Dorsal fin
         const dorsalGeometry = new THREE.ConeGeometry(size * 0.3, size * 1, 6);
         const dorsalMaterial = new THREE.MeshPhongMaterial({
             color: fishType.stripColor,
@@ -1655,7 +1655,7 @@ class OceanForest {
         dorsalFin.rotation.x = Math.PI;
         group.add(dorsalFin);
         
-        // 腹鳍
+        // Ventral fins
         const ventralFin = new THREE.Mesh(
             new THREE.ConeGeometry(size * 0.2, size * 0.6, 5), 
             dorsalMaterial
@@ -1664,7 +1664,7 @@ class OceanForest {
         ventralFin.rotation.x = Math.PI;
         group.add(ventralFin);
         
-        // 胸鳍
+        // Pectoral fins
         const pectoralGeometry = new THREE.ConeGeometry(size * 0.25, size * 0.7, 5);
         const pectoralMaterial = new THREE.MeshPhongMaterial({
             color: fishType.secondaryColor,
@@ -1685,7 +1685,7 @@ class OceanForest {
         pectoralR.rotation.y = -Math.PI / 6;
         group.add(pectoralR);
         
-        // 大眼睛 - 儿童友好
+        // Large eyes - child-friendly
         const eyeGeometry = new THREE.SphereGeometry(size * 0.2, 12, 8);
         const eyeWhiteMaterial = new THREE.MeshPhongMaterial({
             color: 0xffffff,
@@ -1700,7 +1700,7 @@ class OceanForest {
         eyeR.position.set(size * 0.9, size * 0.4, -size * 0.5);
         group.add(eyeR);
         
-        // 瞳孔
+        // Pupils
         const pupilGeometry = new THREE.SphereGeometry(size * 0.1, 8, 6);
         const pupilMaterial = new THREE.MeshPhongMaterial({
             color: 0x000000,
@@ -1715,7 +1715,7 @@ class OceanForest {
         pupilR.position.set(size * 0.98, size * 0.45, -size * 0.5);
         group.add(pupilR);
         
-        // 嘴部
+        // Mouth
         const mouthGeometry = new THREE.SphereGeometry(size * 0.08, 6, 4);
         const mouthMaterial = new THREE.MeshPhongMaterial({
             color: 0x333333,
@@ -1726,7 +1726,7 @@ class OceanForest {
         mouth.scale.set(1, 0.5, 1);
         group.add(mouth);
         
-        // 存储引用
+        // Store references
         group.userData.tail = tail;
         group.userData.species = {
             name: fishType.name,
@@ -1748,7 +1748,7 @@ class OceanForest {
         
         switch(fishType.pattern) {
             case 'stripes':
-                // 垂直条纹
+                // Vertical stripes
                 for (let i = 0; i < 4; i++) {
                     const stripeGeometry = new THREE.PlaneGeometry(size * 0.1, size * 1.5);
                     const stripe = new THREE.Mesh(stripeGeometry, patternMaterial);
@@ -1758,7 +1758,7 @@ class OceanForest {
                 break;
                 
             case 'spots':
-                // 圆点图案
+                // Circular dot pattern
                 for (let i = 0; i < 6; i++) {
                     const spotGeometry = new THREE.SphereGeometry(size * 0.15, 8, 6);
                     const spot = new THREE.Mesh(spotGeometry, patternMaterial);
@@ -1774,7 +1774,7 @@ class OceanForest {
                 break;
                 
             case 'bands':
-                // 水平带纹
+                // Horizontal stripes
                 for (let i = 0; i < 3; i++) {
                     const bandGeometry = new THREE.TorusGeometry(size * 0.8, size * 0.08, 6, 16);
                     const band = new THREE.Mesh(bandGeometry, patternMaterial);
@@ -1785,7 +1785,7 @@ class OceanForest {
                 break;
                 
             case 'eyespot':
-                // 眼斑（蝴蝶鱼特征）
+                // Eye spots (butterflyfish characteristic)
                 const eyespotGeometry = new THREE.SphereGeometry(size * 0.3, 12, 8);
                 const eyespotMaterial = new THREE.MeshPhongMaterial({
                     color: 0x000000,
@@ -1796,7 +1796,7 @@ class OceanForest {
                 eyespot.scale.set(1, 1, 0.1);
                 group.add(eyespot);
                 
-                // 眼斑中心的白点
+                // White dot in center of eye spot
                 const centerDot = new THREE.Mesh(
                     new THREE.SphereGeometry(size * 0.1, 8, 6),
                     new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 })
@@ -1812,44 +1812,44 @@ class OceanForest {
     getFishFacts(englishName) {
         const facts = {
             'Yellowtail': [
-                "游泳速度很快 / Fast swimmers",
-                "群体觅食 / Group feeding behavior",
-                "肉食性鱼类 / Carnivorous fish",
-                "可长到1米长 / Can grow up to 1 meter"
+                "Fast swimmers",
+                "Group feeding behavior",
+                "Carnivorous fish",
+                "Can grow up to 1 meter"
             ],
             'Roman': [
-                "色彩鲜艳 / Brightly colored",
-                "珊瑚礁栖居者 / Coral reef inhabitants",
-                "杂食性 / Omnivorous diet",
-                "性格温和 / Peaceful temperament"
+                "Brightly colored",
+                "Coral reef inhabitants",
+                "Omnivorous diet",
+                "Peaceful temperament"
             ],
             'Hottentot': [
-                "蓝色条纹美丽 / Beautiful blue stripes",
-                "岩礁区常见 / Common in rocky reefs",
-                "以小型甲壳动物为食 / Feeds on small crustaceans",
-                "南非特有种 / Endemic to South Africa"
+                "Beautiful blue stripes",
+                "Common in rocky reefs",
+                "Feeds on small crustaceans",
+                "Endemic to South Africa"
             ],
             'Steentjie': [
-                "绿色保护色 / Green camouflage coloring",
-                "藏身岩石间 / Hides among rocks",
-                "以藻类为食 / Feeds on algae",
-                "小型底栖鱼类 / Small bottom-dwelling fish"
+                "Green camouflage coloring",
+                "Hides among rocks",
+                "Feeds on algae",
+                "Small bottom-dwelling fish"
             ],
             'Angelfish': [
-                "身体扁平如天使 / Flat body like an angel",
-                "色彩绚丽 / Brilliant colors",
-                "珊瑚礁清洁工 / Coral reef cleaners",
-                "一夫一妻制 / Monogamous mating"
+                "Flat body like an angel",
+                "Brilliant colors",
+                "Coral reef cleaners",
+                "Monogamous mating"
             ],
             'Butterflyfish': [
-                "眼斑用来迷惑天敌 / Eye spots confuse predators",
-                "长长的嘴适合觅食 / Long snout perfect for feeding",
-                "珊瑚虫专食者 / Specialized coral feeders",
-                "成对游泳 / Swim in pairs"
+                "Eye spots confuse predators",
+                "Long snout perfect for feeding",
+                "Specialized coral feeders",
+                "Swim in pairs"
             ]
         };
         
-        return facts[englishName] || ["美丽的珊瑚礁鱼类 / Beautiful coral reef fish"];
+        return facts[englishName] || ["Beautiful coral reef fish"];
     }
     
     getFishPhoto(englishName) {
@@ -2013,18 +2013,18 @@ class OceanForest {
         this.capeFurSeals.forEach(seal => {
             const sealData = seal.userData;
             
-            // 初始化自然游泳数据
+            // Initialize natural swimming data
             if (!sealData.naturalSwim) {
                 sealData.naturalSwim = {
-                    baseSpeed: 0.010 + Math.random() * 0.005, // 慢速移动
+                    baseSpeed: 0.010 + Math.random() * 0.005, // Slow movement
                     currentSpeed: 0,
                     targetDirection: sealData.direction.clone(),
                     currentDirection: sealData.direction.clone(),
                     swimPhase: Math.random() * Math.PI * 2,
                     lastDirectionChange: 0,
-                    directionChangeInterval: 5000 + Math.random() * 8000, // 5-13秒改变方向
-                    breathingTimer: Math.random() * 20000, // 呼吸计时
-                    playTimer: Math.random() * 30000, // 玩耍计时
+                    directionChangeInterval: 5000 + Math.random() * 8000, // Change direction every 5-13 seconds
+                    breathingTimer: Math.random() * 20000, // Breathing timer
+                    playTimer: Math.random() * 30000, // Play timer
                     currentDepth: seal.position.y
                 };
             }
@@ -2032,31 +2032,31 @@ class OceanForest {
             const naturalSwim = sealData.naturalSwim;
             const time = performance.now();
             
-            // 检查是否需要改变游泳方向
+            // Check if swimming direction needs to change
             if (time - naturalSwim.lastDirectionChange > naturalSwim.directionChangeInterval) {
                 naturalSwim.lastDirectionChange = time;
                 naturalSwim.directionChangeInterval = 5000 + Math.random() * 8000;
                 
-                // 生成新的目标方向（平滑转向）
+                // Generate new target direction (smooth turning)
                 const currentAngle = Math.atan2(naturalSwim.currentDirection.z, naturalSwim.currentDirection.x);
-                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.5; // 最大45度转向
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.5; // Maximum 45 degree turn
                 const newAngle = currentAngle + turnAngle;
                 
                 naturalSwim.targetDirection.set(
                     Math.cos(newAngle),
-                    (Math.random() - 0.5) * 0.4, // 更多的垂直变化
+                    (Math.random() - 0.5) * 0.4, // More vertical variation
                     Math.sin(newAngle)
                 ).normalize();
             }
             
-            // 简单的呼吸行为
+            // Simple breathing behavior
             naturalSwim.breathingTimer -= deltaTime * 1000;
             if (naturalSwim.breathingTimer <= 0) {
-                naturalSwim.breathingTimer = 15000 + Math.random() * 10000; // 15-25秒呼吸一次
+                naturalSwim.breathingTimer = 15000 + Math.random() * 10000; // Breathe every 15-25 seconds
                 if (seal.position.y < 2) {
-                    naturalSwim.targetDirection.y = 0.6; // 上浮呼吸
+                    naturalSwim.targetDirection.y = 0.6; // Surface to breathe
                 } else {
-                    naturalSwim.targetDirection.y = -0.4; // 下潜
+                    naturalSwim.targetDirection.y = -0.4; // Dive down
                 }
             }
             
@@ -2077,7 +2077,7 @@ class OceanForest {
             naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.015);
             naturalSwim.currentDirection.normalize();
             
-            // 速度平滑变化
+            // Smooth speed changes
             const targetSpeed = naturalSwim.baseSpeed * (0.6 + Math.sin(naturalSwim.swimPhase) * 0.4);
             naturalSwim.currentSpeed = THREE.MathUtils.lerp(naturalSwim.currentSpeed, targetSpeed, 0.04);
             naturalSwim.swimPhase += deltaTime * 1.8;
@@ -2086,7 +2086,7 @@ class OceanForest {
             const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(naturalSwim.currentSpeed);
             seal.position.add(moveVector);
             
-            // 平滑朝向移动方向
+            // Smooth orientation toward movement direction
             const lookAtTarget = seal.position.clone().add(naturalSwim.currentDirection);
             seal.lookAt(lookAtTarget);
             
@@ -2101,7 +2101,7 @@ class OceanForest {
                 flippers.backR.rotation.y = -Math.PI / 4 - Math.sin(swimTime * 4) * 0.2 * swimIntensity;
             }
             
-            // 边界控制（慢速返回）
+            // Boundary control（慢速返回）
             if (seal.position.length() > 90) {
                 const returnDirection = seal.position.clone().negate().normalize();
                 naturalSwim.targetDirection.lerp(returnDirection, 0.08);
@@ -2116,7 +2116,7 @@ class OceanForest {
         this.africanPenguins.forEach(penguin => {
             const penguinData = penguin.userData;
             
-            // 初始化自然游泳数据
+            // Initialize natural swimming data
             if (!penguinData.naturalSwim) {
                 penguinData.naturalSwim = {
                     baseSpeed: 0.015 + Math.random() * 0.005, // 慢速移动
@@ -2134,14 +2134,14 @@ class OceanForest {
             const naturalSwim = penguinData.naturalSwim;
             const time = performance.now();
             
-            // 检查是否需要改变游泳方向 
+            // Check if swimming direction needs to change 
             if (time - naturalSwim.lastDirectionChange > naturalSwim.directionChangeInterval) {
                 naturalSwim.lastDirectionChange = time;
                 naturalSwim.directionChangeInterval = 4000 + Math.random() * 6000;
                 
-                // 生成新的目标方向（平滑转向）
+                // Generate new target direction (smooth turning)
                 const currentAngle = Math.atan2(naturalSwim.currentDirection.z, naturalSwim.currentDirection.x);
-                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.4; // 最大36度转向
+                const turnAngle = (Math.random() - 0.5) * Math.PI * 0.4; // Maximum 36 degree turn
                 const newAngle = currentAngle + turnAngle;
                 
                 naturalSwim.targetDirection.set(
@@ -2160,13 +2160,13 @@ class OceanForest {
             if (naturalSwim.surfaceTimer <= 0) {
                 naturalSwim.surfaceTimer = 12000 + Math.random() * 8000; // 12-20秒浮潜一次
                 if (penguin.position.y > -3) {
-                    naturalSwim.targetDirection.y = -0.4; // 下潜
+                    naturalSwim.targetDirection.y = -0.4; // Dive down
                 } else {
                     naturalSwim.targetDirection.y = 0.3; // 上浮
                 }
             }
             
-            // 速度平滑变化
+            // Smooth speed changes
             const targetSpeed = naturalSwim.baseSpeed * (0.8 + Math.sin(naturalSwim.swimPhase) * 0.2);
             naturalSwim.currentSpeed = THREE.MathUtils.lerp(naturalSwim.currentSpeed, targetSpeed, 0.05);
             naturalSwim.swimPhase += deltaTime * 2;
@@ -2175,7 +2175,7 @@ class OceanForest {
             const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(naturalSwim.currentSpeed);
             penguin.position.add(moveVector);
             
-            // 平滑朝向移动方向
+            // Smooth orientation toward movement direction
             const lookAtTarget = penguin.position.clone().add(naturalSwim.currentDirection);
             penguin.lookAt(lookAtTarget);
             
@@ -2188,7 +2188,7 @@ class OceanForest {
                 flippers.right.rotation.z = -Math.sin(swimTime * 4) * 0.4 * flapIntensity;
             }
             
-            // 边界控制（慢速返回）
+            // Boundary control（慢速返回）
             if (penguin.position.length() > 80) {
                 const returnDirection = penguin.position.clone().negate().normalize();
                 naturalSwim.targetDirection.lerp(returnDirection, 0.05);
@@ -2203,7 +2203,7 @@ class OceanForest {
         this.greatWhiteSharks.forEach(shark => {
             const sharkData = shark.userData;
             
-            // 初始化自然游泳数据
+            // Initialize natural swimming data
             if (!sharkData.naturalSwim) {
                 sharkData.naturalSwim = {
                     baseSpeed: 0.012 + Math.random() * 0.008, // 慢速移动
@@ -2231,7 +2231,7 @@ class OceanForest {
                 naturalSwim.huntingCooldown -= deltaTime * 1000;
             }
             
-            // 检查是否需要改变游泳方向
+            // Check if swimming direction needs to change
             if (time - naturalSwim.lastDirectionChange > naturalSwim.directionChangeInterval) {
                 naturalSwim.lastDirectionChange = time;
                 naturalSwim.directionChangeInterval = 6000 + Math.random() * 10000;
@@ -2268,11 +2268,11 @@ class OceanForest {
                 naturalSwim.huntingCooldown = 5000; // 5秒冷却
             }
             
-            // 极其平滑的方向插值
+            // Extremely smooth direction interpolation
             naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.008);
             naturalSwim.currentDirection.normalize();
             
-            // 速度平滑变化
+            // Smooth speed changes
             const targetSpeed = naturalSwim.baseSpeed * (0.7 + Math.sin(naturalSwim.swimPhase) * 0.3);
             naturalSwim.currentSpeed = THREE.MathUtils.lerp(naturalSwim.currentSpeed, targetSpeed, 0.03);
             naturalSwim.swimPhase += deltaTime * 1.5;
@@ -2304,7 +2304,7 @@ class OceanForest {
         this.capeReefFish.forEach((fish, fishIndex) => {
             const fishData = fish.userData;
             
-            // 初始化自然游泳数据
+            // Initialize natural swimming data
             if (!fishData.naturalSwim) {
                 fishData.naturalSwim = {
                     baseSpeed: 0.008 + Math.random() * 0.007, // 极大降低速度，仿照章鱼慢速
@@ -2352,11 +2352,11 @@ class OceanForest {
                 ).normalize();
             }
             
-            // 极其平滑的方向插值
+            // Extremely smooth direction interpolation
             naturalSwim.currentDirection.lerp(naturalSwim.targetDirection, 0.01);
             naturalSwim.currentDirection.normalize();
             
-            // 简化的避让行为（减少干扰）
+            // Simplified avoidance behavior（减少干扰）
             const distanceToOctopus = fish.position.distanceTo(this.octopusPosition);
             let targetSpeed = naturalSwim.baseSpeed;
             
@@ -2366,19 +2366,19 @@ class OceanForest {
                 targetSpeed = naturalSwim.baseSpeed * 1.2; // 轻微加速
             }
             
-            // 速度平滑变化
+            // Smooth speed changes
             naturalSwim.currentSpeed = THREE.MathUtils.lerp(
                 naturalSwim.currentSpeed,
                 targetSpeed,
                 0.03
             );
             
-            // 简化的游泳节奏
+            // Simplified swimming rhythm
             naturalSwim.swimPhase += deltaTime * 1.5;
             const rhythmFactor = 0.8 + Math.sin(naturalSwim.swimPhase) * 0.2;
             const finalSpeed = naturalSwim.currentSpeed * rhythmFactor;
             
-            // 慢速移动
+            // Slow movement
             const moveVector = naturalSwim.currentDirection.clone().multiplyScalar(finalSpeed);
             fish.position.add(moveVector);
             
@@ -2405,7 +2405,7 @@ class OceanForest {
                 tail.rotation.y = Math.sin(tailPhase) * 0.3 * Math.min(swimIntensity, 2.0);
             }
             
-            // 更新原始数据保持兼容性
+            // Update original data to maintain compatibility
             fishData.direction.copy(naturalSwim.currentDirection);
             fishData.speed = finalSpeed;
         });
